@@ -8,7 +8,7 @@ members = [
     "rrule",
     "rrule-debugger",
 ]
-resolver = "2"
+resolver = "3"
 
 # These are the 2 packages to mainly work on.
 # So `cargo test` and `cargo run` both work.
