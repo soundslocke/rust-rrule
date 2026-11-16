@@ -650,7 +650,7 @@ impl<S> RRule<S> {
     pub(crate) fn to_ical(&self, date_start: bool) -> String {
         let midnight_default = |part: &[u8]| date_start && part == [0];
         let mut res = Vec::with_capacity(15);
-        res.push(format!("FREQ={}", &self.freq));
+        res.push(format!("FREQ={}", self.freq));
 
         if let Some(until) = &self.until {
             let until = if date_start {
@@ -667,7 +667,7 @@ impl<S> RRule<S> {
 
         // One interval is the default, no need to expose it.
         if self.interval != 1 {
-            res.push(format!("INTERVAL={}", &self.interval));
+            res.push(format!("INTERVAL={}", self.interval));
         }
 
         // Monday is the default, no need to expose it.
