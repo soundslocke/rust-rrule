@@ -9,15 +9,6 @@ pub enum ParseError {
     InvalidDateTime { value: String, property: String },
     #[error("`{0}` is not a valid datetime format.")]
     InvalidDateTimeFormat(String),
-    #[error("{property}:{value} is not a valid datetime in local timezone.")]
-    InvalidDateTimeInLocalTimezone { value: String, property: String },
-    #[error("{property}:{value} is not a valid datetime in local timezone. This value is ambiguous and can be `{date1}` or `{date2}`")]
-    DateTimeInLocalTimezoneIsAmbiguous {
-        value: String,
-        property: String,
-        date1: String,
-        date2: String,
-    },
     #[error("`{0}` is not a valid frequency.")]
     InvalidFrequency(String),
     #[error("`{0}` is not a valid weekday. Valid values are `MO`, `TU`, `WE`, `TH`, `FR`, `SA` and `SU`.")]
@@ -66,14 +57,6 @@ pub enum ParseError {
         "`{0}` is not a valid property name, expected one of: `RRULE,EXRULE,DTSTART,RDATE,EXDATE`"
     )]
     UnrecognizedPropertyName(String),
-    #[error(
-        "The value of `DTSTART` and `UNTIL` needs to match. Both need to be either a `DATE` or `DATE-TIME`"
-    )]
-    DtStartUntilMismatchValue,
-    #[error(
-        "The value of `DTSTART` was specified in local timezone, but `UNTIL` was specified with a zulu time when it had to be specified in local time as well"
-    )]
-    DtStartUntilMismatchTimezone,
     #[error("Property parameter `{parameter}` was set to have value `{parameter_value}`, but found `{found_value}` ")]
     ParameterValueMismatch {
         parameter: String,

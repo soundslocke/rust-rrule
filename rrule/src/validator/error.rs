@@ -35,16 +35,6 @@ pub enum ValidationError {
     #[error("`UNTIL` is `{until}`, but `DTSTART` (`{dt_start}`) is later. That should not be happening.")]
     UntilBeforeStart { until: String, dt_start: String },
     #[error(
-        "`INTERVAL` is `{0}`, is higher than expected, make sure this is correct. \
-            See 'validator limits' in docs for more info."
-    )]
-    TooBigInterval(u16),
-    #[error(
-        "`DTSTART` year is `{0}`, is higher/lower than expected, make sure this is correct. \
-            See 'validator limits' in docs for more info."
-    )]
-    StartYearOutOfRange(i32),
-    #[error(
         "Unable to generate a timeset for the RRULE. Please specify a BYHOUR, BYMINUTE or BYSECOND"
     )]
     UnableToGenerateTimeset,

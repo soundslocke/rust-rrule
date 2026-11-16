@@ -57,6 +57,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ZonedDateTime` and `chrono::DateTime` (`chrono_tz::Tz`, `Utc`,
   `FixedOffset`) at the API boundary.
 - MSRV is bumped to `1.85.0` from `1.81.0`, as Jiff 1.0 requires.
+- Error variants the crate never returns are removed:
+  `ParseError::InvalidDateTimeInLocalTimezone` and
+  `ParseError::DateTimeInLocalTimezoneIsAmbiguous` (DST gaps and folds resolve as
+  described under time zones), `ParseError::DtStartUntilMismatchValue`,
+  `ParseError::DtStartUntilMismatchTimezone` (reported as
+  `ValidationError::DtStartUntilMismatchTimezone`),
+  `ValidationError::TooBigInterval` and `ValidationError::StartYearOutOfRange`.
 - `RRule::by_month` takes month numbers (`&[u8]`, 1-12) instead of `chrono::Month`.
 - A floating DTSTART, RDATE, EXDATE or UNTIL (no `TZID`, no `Z`) is placed in
   `jiff::tz::TimeZone::unknown()`, which behaves like UTC, instead of the
