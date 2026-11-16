@@ -11,7 +11,7 @@ fn main() {
     let start_date = date(2020, 1, 1)
         .at(9, 0, 0, 0)
         .to_zoned_datetime(TimeZone::UTC)
-        .unwrap();
+        .expect("2020-01-01T09:00 exists in UTC");
     let rrule_set = RRule::default()
         .count(5)
         .freq(Frequency::Daily)

@@ -16,7 +16,7 @@ fn main() {
         let start = date(2020, 1, 1)
             .at(9, 0, 0, 0)
             .to_zoned_datetime(TimeZone::UTC)
-            .unwrap();
+            .expect("2020-01-01T09:00 exists in UTC");
         // Build an rrule set that occurs weekly on Tuesday and Wednesday
         let rrule_set = RRule::default()
             .count(4)

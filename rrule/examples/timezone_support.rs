@@ -10,15 +10,15 @@ use jiff::ZonedDateTime;
 use rrule::{Frequency, RRule};
 
 fn main() {
-    let tz = TimeZone::get("Europe/Berlin").unwrap();
+    let tz = TimeZone::get("Europe/Berlin").expect("Europe/Berlin is in the time zone database");
     let start_date = date(2020, 1, 1)
         .at(9, 0, 0, 0)
         .to_zoned_datetime(tz)
-        .unwrap();
+        .expect("2020-01-01T09:00 exists in Berlin");
     let exdate = date(2020, 1, 2)
         .at(8, 0, 0, 0)
         .to_zoned_datetime(TimeZone::UTC)
-        .unwrap();
+        .expect("2020-01-02T08:00 exists in UTC");
 
     // Build an rrule set that occurs daily at 9:00 for 4 times
     let rrule_set = RRule::default()
@@ -35,7 +35,8 @@ fn main() {
     assert_eq!(recurrences.len(), 3);
 
     // To see the occurrences in another zone, convert each `ZonedDateTime`.
-    let moscow = TimeZone::get("Europe/Moscow").unwrap();
+    let moscow =
+        TimeZone::get("Europe/Moscow").expect("Europe/Moscow is in the time zone database");
     let _recurrences_in_moscow: Vec<ZonedDateTime> = recurrences
         .iter()
         .map(|d| d.with_time_zone(moscow.clone()))
