@@ -116,8 +116,9 @@ fn expand(series: &Value) -> Result<Vec<String>, String> {
     Ok(out)
 }
 
-fn run(path: &Path) -> (usize, usize, Vec<String>) {
-    let data: Value = from_str(&read_to_string(path).unwrap()).unwrap();
+fn run(path: &Path) -> Result<(usize, usize, Vec<String>), String> {
+    let src = read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let data: Value = from_str(&src).map_err(|e| format!("{}: {e}", path.display()))?;
     let (mut pass, mut fail, mut unexpected) = (0, 0, vec![]);
     for series in data["series"].as_array().into_iter().flatten() {
         let name = series["spec"]["name"].as_str().unwrap_or("?");
@@ -169,11 +170,11 @@ fn run(path: &Path) -> (usize, usize, Vec<String>) {
             unexpected.push(name.to_string());
         }
     }
-    (pass, fail, unexpected)
+    Ok((pass, fail, unexpected))
 }
 
 #[test]
-fn google_fixtures() {
+fn google_fixtures() -> Result<(), String> {
     let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/data/google");
     let mut files: Vec<_> = read_dir(&dir)
         .unwrap()
@@ -197,7 +198,7 @@ fn google_fixtures() {
     files.sort();
     let mut unexplained = vec![];
     for f in files {
-        let (pass, fail, unexpected) = run(&f);
+        let (pass, fail, unexpected) = run(&f)?;
         println!(
             "google fixtures {}: {} series, {pass} match, {fail} differ ({} not in KNOWN)",
             f.file_name().unwrap().to_string_lossy(),
@@ -206,8 +207,11 @@ fn google_fixtures() {
         );
         unexplained.extend(unexpected);
     }
-    assert!(
-        unexplained.is_empty(),
-        "differ from Google and not in KNOWN: {unexplained:?}"
-    );
+    if unexplained.is_empty() {
+        Ok(())
+    } else {
+        Err(format!(
+            "differ from Google and not in KNOWN: {unexplained:?}"
+        ))
+    }
 }

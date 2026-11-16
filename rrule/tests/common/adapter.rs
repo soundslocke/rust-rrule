@@ -100,7 +100,7 @@ pub fn expand(q: &Query) -> Result<Expansion, String> {
             if upper.as_ref().is_some_and(|u| d > *u) || out.len() >= want {
                 break;
             }
-            if lower.as_ref().map_or(true, |(l, _)| d >= *l) {
+            if lower.as_ref().is_none_or(|(l, _)| d >= *l) {
                 out.push(d);
             }
         }
@@ -112,9 +112,10 @@ pub fn expand(q: &Query) -> Result<Expansion, String> {
     }
     if q.dtstart_always {
         // The injected RDATE must not duplicate a DTSTART the rules generate too.
-        if dates.iter().filter(|d| **d == dtstart).count() > 1 {
-            let i = dates.iter().position(|d| *d == dtstart).unwrap();
-            dates.remove(i);
+        if let Some(i) = dates.iter().position(|d| *d == dtstart) {
+            if dates[i + 1..].contains(&dtstart) {
+                dates.remove(i);
+            }
         }
     }
     dates.truncate(q.max);

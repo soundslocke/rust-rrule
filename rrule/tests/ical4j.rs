@@ -6,7 +6,7 @@ use common::corpus::run;
 use std::env::var;
 
 #[test]
-fn ical4j_corpus() {
+fn ical4j_corpus() -> Result<(), String> {
     let path = var("ICAL4J_CORPUS").unwrap_or_else(|_| {
         concat!(
             env!("CARGO_MANIFEST_DIR"),
@@ -14,5 +14,5 @@ fn ical4j_corpus() {
         )
         .into()
     });
-    run("ical4j", &path);
+    run("ical4j", &path)
 }

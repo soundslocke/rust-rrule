@@ -6,7 +6,7 @@ use common::corpus::run;
 use std::env::var;
 
 #[test]
-fn rfc2445_corpus() {
+fn rfc2445_corpus() -> Result<(), String> {
     let path = var("RFC2445_CORPUS").unwrap_or_else(|_| {
         concat!(
             env!("CARGO_MANIFEST_DIR"),
@@ -14,5 +14,5 @@ fn rfc2445_corpus() {
         )
         .into()
     });
-    run("rfc2445", &path);
+    run("rfc2445", &path)
 }

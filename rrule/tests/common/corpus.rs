@@ -236,10 +236,11 @@ fn check(c: &Case) -> (Outcome, bool) {
 }
 
 /// Runs every case in the corpus at `path` and prints one line per non-passing case plus
-/// a summary. Reports rather than asserts: a failing case does not fail `cargo test`.
-pub fn run(name: &str, path: &str) {
-    let src = read_to_string(path).unwrap_or_else(|e| panic!("{path}: {e}"));
-    let cases = parse(&src).unwrap_or_else(|e| panic!("{path}: {e}"));
+/// a summary. Reports rather than asserts: a failing case does not fail `cargo test`, but
+/// a corpus that cannot be read or parsed does.
+pub fn run(name: &str, path: &str) -> Result<(), String> {
+    let src = read_to_string(path).map_err(|e| format!("{path}: {e}"))?;
+    let cases = parse(&src).map_err(|e| format!("{path}: {e}"))?;
     let prev_hook = take_hook();
     set_hook(Box::new(|_| {}));
     let (mut pass, mut fail, mut err) = (0, 0, 0);
@@ -279,4 +280,5 @@ pub fn run(name: &str, path: &str) {
         "\n{name} corpus: {} cases, {pass} pass, {fail} fail, {err} errors",
         cases.len()
     );
+    Ok(())
 }

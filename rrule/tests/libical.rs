@@ -12,7 +12,13 @@ struct Case {
     instances: Vec<String>,
 }
 
-fn parse(src: &str) -> Vec<Case> {
+/// The case a DTSTART, START-AT or INSTANCES line belongs to: the one its last RRULE began.
+fn current(cur: &mut Option<Case>, line: usize) -> Result<&mut Case, String> {
+    cur.as_mut()
+        .ok_or_else(|| format!("line {line} comes before any RRULE"))
+}
+
+fn parse(src: &str) -> Result<Vec<Case>, String> {
     let mut out = vec![];
     let mut cur: Option<Case> = None;
     let mut comment = String::new();
@@ -34,11 +40,11 @@ fn parse(src: &str) -> Vec<Case> {
                 instances: vec![],
             });
         } else if let Some(v) = l.strip_prefix("DTSTART:") {
-            cur.as_mut().unwrap().dtstart = v.into();
+            current(&mut cur, i + 1)?.dtstart = v.into();
         } else if let Some(v) = l.strip_prefix("START-AT:") {
-            cur.as_mut().unwrap().start_at = Some(v.into());
+            current(&mut cur, i + 1)?.start_at = Some(v.into());
         } else if let Some(v) = l.strip_prefix("INSTANCES:") {
-            cur.as_mut().unwrap().instances = v
+            current(&mut cur, i + 1)?.instances = v
                 .split(',')
                 .filter(|s| !s.is_empty())
                 .map(String::from)
@@ -48,7 +54,7 @@ fn parse(src: &str) -> Vec<Case> {
     if let Some(c) = cur {
         out.push(c);
     }
-    out
+    Ok(out)
 }
 
 fn fmt(dt: &ZonedDateTime, date_only: bool, utc: bool) -> String {
@@ -62,7 +68,7 @@ fn fmt(dt: &ZonedDateTime, date_only: bool, utc: bool) -> String {
 }
 
 #[test]
-fn libical_corpus() {
+fn libical_corpus() -> Result<(), String> {
     let path = var("LIBICAL_RECUR").unwrap_or_else(|_| {
         concat!(
             env!("CARGO_MANIFEST_DIR"),
@@ -70,7 +76,8 @@ fn libical_corpus() {
         )
         .into()
     });
-    let cases = parse(&read_to_string(path).unwrap());
+    let src = read_to_string(&path).map_err(|e| format!("{path}: {e}"))?;
+    let cases = parse(&src).map_err(|e| format!("{path}: {e}"))?;
     let (mut pass, mut fail, mut err) = (0, 0, 0);
     for c in &cases {
         let date_only = !c.dtstart.contains('T');
@@ -145,6 +152,7 @@ fn libical_corpus() {
         "\nlibical corpus: {} cases, {pass} pass, {fail} fail, {err} parse errors",
         cases.len()
     );
+    Ok(())
 }
 
 fn fix_until(rule: &str) -> String {
