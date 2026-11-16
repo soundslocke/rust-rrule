@@ -12,7 +12,6 @@ rust-version.workspace = true
 [dependencies]
 afl = "*"
 jiff = "1.0.0"
-num-traits = "0.2.19"
 
 [dependencies.rrule]
 path = "../rrule"
