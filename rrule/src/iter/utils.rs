@@ -1,4 +1,4 @@
-use std::ops;
+use std::ops::{Add, Rem};
 
 use jiff::civil::{Date, Time};
 use jiff::tz::TimeZone;
@@ -82,7 +82,7 @@ impl_different_signs!(@unsigned, usize, u32, u16, u8);
 
 pub(crate) fn pymod<T>(a: T, b: T) -> T
 where
-    T: DifferentSigns + Copy + ops::Rem<Output = T> + ops::Add<Output = T>,
+    T: DifferentSigns + Copy + Rem<Output = T> + Add<Output = T>,
 {
     let r = a % b;
     // If r and b differ in sign, add b to wrap the result to the correct sign.
@@ -103,18 +103,20 @@ pub(crate) fn add_time_to_date(tz: &TimeZone, date: Date, time: Time) -> Option<
 mod test {
 
     use crate::tests::compat::Tz;
+    use jiff::civil::{date, time};
+    use jiff::SignedDuration;
 
     use super::*;
 
     #[test]
     fn naive_date_from_ordinal() {
         let tests = [
-            (-1, jiff::civil::date(1969, 12, 31)),
-            (0, jiff::civil::date(1970, 1, 1)),
-            (1, jiff::civil::date(1970, 1, 2)),
-            (10, jiff::civil::date(1970, 1, 11)),
-            (365, jiff::civil::date(1971, 1, 1)),
-            (19877, jiff::civil::date(2024, 6, 3)),
+            (-1, date(1969, 12, 31)),
+            (0, date(1970, 1, 1)),
+            (1, date(1970, 1, 2)),
+            (10, date(1970, 1, 11)),
+            (365, date(1971, 1, 1)),
+            (19877, date(2024, 6, 3)),
         ];
 
         for (days, expected) in tests {
@@ -125,18 +127,18 @@ mod test {
     #[test]
     fn ordinals_round_trip_across_the_whole_date_range() {
         for date in [
-            jiff::civil::Date::MIN,
-            jiff::civil::date(-1, 2, 28),
-            jiff::civil::date(0, 2, 29),
-            jiff::civil::date(1900, 3, 1),
-            jiff::civil::date(2000, 2, 29),
-            jiff::civil::Date::MAX,
+            Date::MIN,
+            date(-1, 2, 28),
+            date(0, 2, 29),
+            date(1900, 3, 1),
+            date(2000, 2, 29),
+            Date::MAX,
         ] {
             let ordinal = days_since_unix_epoch(date);
             assert_eq!(date_from_ordinal(ordinal), Some(date), "{date}");
         }
-        let past_max = days_since_unix_epoch(jiff::civil::Date::MAX) + 1;
-        let before_min = days_since_unix_epoch(jiff::civil::Date::MIN) - 1;
+        let past_max = days_since_unix_epoch(Date::MAX) + 1;
+        let before_min = days_since_unix_epoch(Date::MIN) - 1;
         assert_eq!(date_from_ordinal(past_max), None);
         assert_eq!(date_from_ordinal(before_min), None);
     }
@@ -191,26 +193,26 @@ mod test {
         let tests = [
             (
                 Tz::UTC,
-                jiff::civil::date(2017, 1, 1),
-                jiff::civil::time(1, 15, 30, 0),
+                date(2017, 1, 1),
+                time(1, 15, 30, 0),
                 Some(Tz::UTC.with_ymd_and_hms(2017, 1, 1, 1, 15, 30).unwrap()),
             ),
             (
                 Tz::America__Vancouver,
-                jiff::civil::date(2021, 3, 14),
-                jiff::civil::time(2, 22, 10, 0),
+                date(2021, 3, 14),
+                time(2, 22, 10, 0),
                 Some(
                     Tz::America__Vancouver
                         .with_ymd_and_hms(2021, 3, 14, 0, 0, 0)
                         .unwrap()
-                        .checked_add(jiff::SignedDuration::from_secs(2 * 3600 + 22 * 60 + 10))
+                        .checked_add(SignedDuration::from_secs(2 * 3600 + 22 * 60 + 10))
                         .unwrap(),
                 ),
             ),
             (
                 Tz::America__New_York,
-                jiff::civil::date(1997, 10, 26),
-                jiff::civil::time(9, 0, 0, 0),
+                date(1997, 10, 26),
+                time(9, 0, 0, 0),
                 Some(
                     Tz::America__New_York
                         .with_ymd_and_hms(1997, 10, 26, 9, 0, 0)

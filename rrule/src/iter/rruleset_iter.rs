@@ -1,4 +1,5 @@
-use jiff::ZonedDateTime;
+use jiff::{Timestamp, ZonedDateTime};
+use log::warn;
 
 use super::rrule_iter::RRuleIter;
 use super::rrule_iter::WasLimited;
@@ -23,7 +24,7 @@ pub struct RRuleSetIter {
     rdates: Vec<ZonedDateTime>,
     was_limited: bool,
     /// The instant last returned, so one produced twice is returned once (RFC 5545 §3.8.5.2).
-    last: Option<jiff::Timestamp>,
+    last: Option<Timestamp>,
 }
 
 impl RRuleSetIter {
@@ -47,7 +48,7 @@ impl RRuleSetIter {
             if let Some(step_limit) = step_limit {
                 loop_counter += 1;
                 if loop_counter >= step_limit {
-                    log::warn!(
+                    warn!(
                         "Reached max loop counter (`{}`). \
                 See 'validator limits' in docs for more info.",
                         step_limit
@@ -77,7 +78,7 @@ impl RRuleSetIter {
             if let Some(step_limit) = step_limit {
                 loop_counter += 1;
                 if loop_counter >= step_limit {
-                    log::warn!(
+                    warn!(
                         "Reached max loop counter (`{}`). \
                     See 'validator limits' in docs for more info.",
                         step_limit

@@ -4,7 +4,7 @@ mod parameters;
 mod rule_content_line;
 mod start_date_content_line;
 
-use std::fmt::Display;
+use std::fmt::{self, Display, Formatter};
 use std::str::FromStr;
 
 use crate::RRule;
@@ -34,7 +34,7 @@ pub(crate) enum PropertyName {
 }
 
 impl Display for PropertyName {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match *self {
             Self::RRule => write!(f, "RRULE"),
             Self::ExRule => write!(f, "EXRULE"),

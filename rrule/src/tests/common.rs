@@ -3,6 +3,7 @@
 
 use crate::tests::compat::ToRfc3339;
 use crate::{tests::compat::Tz, RRule, RRuleError, RRuleSet, Unvalidated};
+use jiff::fmt::strtime::parse;
 use jiff::ZonedDateTime;
 use std::fmt::Debug;
 
@@ -79,7 +80,7 @@ pub fn check_occurrences<S: AsRef<str> + Debug>(occurrences: &[ZonedDateTime], e
     );
     assert_eq!(occurrences.len(), expected.len(), "List sizes don't match");
     for (given, expected) in occurrences.iter().zip(expected.iter()) {
-        let exp_datetime = jiff::fmt::strtime::parse("%Y-%m-%dT%H:%M:%S%:z", expected.as_ref())
+        let exp_datetime = parse("%Y-%m-%dT%H:%M:%S%:z", expected.as_ref())
             .and_then(|tm| tm.to_timestamp().map(|ts| (ts, tm.offset())))
             .unwrap();
         // Compare items and check if in the same offset/timezone

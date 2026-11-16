@@ -1,9 +1,11 @@
 use std::ops::RangeInclusive;
 
-use crate::core::{is_floating, is_utc};
+use crate::core::{floating, is_floating, is_utc};
 use crate::{Frequency, NWeekday, RRule, Unvalidated};
 use jiff::tz::TimeZone;
 use jiff::ZonedDateTime;
+#[cfg(not(feature = "by-easter"))]
+use log::warn;
 
 use super::ValidationError;
 
@@ -83,7 +85,7 @@ fn validate_until(
                     return Err(ValidationError::DtStartUntilMismatchTimezone {
                         dt_start_tz: tz_name(dt_start.time_zone()),
                         until_tz: tz_name(until_tz),
-                        expected: vec![tz_name(&crate::core::floating()), "UTC".into()],
+                        expected: vec![tz_name(&floating()), "UTC".into()],
                     });
                 }
             } else if !is_utc(until_tz) {
@@ -330,7 +332,7 @@ fn validate_by_easter(
     #[cfg(not(feature = "by-easter"))]
     {
         if rrule.by_easter.is_some() {
-            log::warn!(
+            warn!(
                 "The `by-easter` feature flag is not set, but `by_easter` is used.\
                 The `by_easter` will be ignored, as if it was set to `None`."
             );

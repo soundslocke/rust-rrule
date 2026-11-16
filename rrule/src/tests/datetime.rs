@@ -1,4 +1,4 @@
-use crate::tests::common;
+use crate::tests::common::check_occurrences;
 use crate::RRuleSet;
 
 /// Monthly on the 31st of the month
@@ -11,7 +11,7 @@ fn monthly_on_31th() {
         .all(u16::MAX)
         .dates;
     // TODO: Is this the correct behavior?
-    common::check_occurrences(
+    check_occurrences(
         &dates,
         &[
             "1997-10-31T09:00:00-05:00",
@@ -38,7 +38,7 @@ fn monthly_on_31th_to_last() {
         .all(u16::MAX)
         .dates;
     // TODO: Is this the correct behavior?
-    common::check_occurrences(
+    check_occurrences(
         &dates,
         &[
             "1997-10-01T09:00:00-04:00",

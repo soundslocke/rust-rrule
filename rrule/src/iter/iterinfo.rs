@@ -1,6 +1,7 @@
 use super::counter_date::DateTimeIter;
 #[cfg(feature = "by-easter")]
 use super::easter::easter;
+use super::filters::is_filtered;
 use super::{monthinfo::MonthInfo, yearinfo::YearInfo};
 use crate::core::get_month;
 use crate::core::WeekdayExt;
@@ -184,7 +185,7 @@ impl IterInfo {
         };
 
         // Filter out days according to the RRule filters.
-        dayset.retain(|day| !super::filters::is_filtered(self, *day));
+        dayset.retain(|day| !is_filtered(self, *day));
 
         dayset
     }

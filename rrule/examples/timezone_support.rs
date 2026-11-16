@@ -6,6 +6,7 @@
 
 use jiff::civil::date;
 use jiff::tz::TimeZone;
+use jiff::ZonedDateTime;
 use rrule::{Frequency, RRule};
 
 fn main() {
@@ -35,7 +36,7 @@ fn main() {
 
     // To see the occurrences in another zone, convert each `ZonedDateTime`.
     let moscow = TimeZone::get("Europe/Moscow").unwrap();
-    let _recurrences_in_moscow: Vec<jiff::ZonedDateTime> = recurrences
+    let _recurrences_in_moscow: Vec<ZonedDateTime> = recurrences
         .iter()
         .map(|d| d.with_time_zone(moscow.clone()))
         .collect();

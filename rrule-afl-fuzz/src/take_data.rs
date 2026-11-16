@@ -1,5 +1,6 @@
 #![allow(clippy::module_name_repetitions)]
 
+use jiff::Timestamp;
 use rrule::{NWeekday, TimeZone, Weekday, ZonedDateTime};
 use std::convert::TryInto;
 
@@ -61,14 +62,11 @@ pub fn take_vec_i32(input: &mut &[u8]) -> Vec<i32> {
 /// Uses 8+4+8 = 20 bytes
 pub fn take_datetime(input: &mut &[u8]) -> ZonedDateTime {
     // Fold arbitrary input into jiff's supported instant range.
-    let (min, max) = (
-        jiff::Timestamp::MIN.as_second(),
-        jiff::Timestamp::MAX.as_second(),
-    );
+    let (min, max) = (Timestamp::MIN.as_second(), Timestamp::MAX.as_second());
     let seconds = min + take_data_i64(input).rem_euclid(max - min);
     let nanos = i32::try_from(take_data_u32(input) % 1_000_000_000).unwrap();
-    jiff::Timestamp::new(seconds, nanos)
-        .unwrap_or(jiff::Timestamp::UNIX_EPOCH)
+    Timestamp::new(seconds, nanos)
+        .unwrap_or(Timestamp::UNIX_EPOCH)
         .to_zoned_datetime(TimeZone::UTC)
 }
 

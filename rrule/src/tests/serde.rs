@@ -1,4 +1,8 @@
 use crate::RRuleSet;
+#[cfg(feature = "serde")]
+use orig_serde::{Deserialize, Serialize};
+#[cfg(feature = "serde")]
+use serde_json::{from_str, to_string};
 use std::str::FromStr;
 
 #[test]
@@ -21,7 +25,7 @@ fn rrule_set_to_and_from_str() {
 #[cfg(feature = "serde")]
 #[test]
 fn serialize_deserialize_json_to_and_from_rrule_set() {
-    #[derive(orig_serde::Deserialize, orig_serde::Serialize, PartialEq, Eq, Debug)]
+    #[derive(Deserialize, Serialize, PartialEq, Eq, Debug)]
     #[serde(crate = "orig_serde")]
     struct RruleTest {
         rrule: RRuleSet,
@@ -37,8 +41,8 @@ fn serialize_deserialize_json_to_and_from_rrule_set() {
         let rrule = RRuleSet::from_str(test_str).unwrap();
         let src_obj = RruleTest { rrule };
 
-        let test_str = serde_json::to_string(&src_obj).unwrap();
-        let final_obj = serde_json::from_str::<RruleTest>(&test_str).unwrap();
+        let test_str = to_string(&src_obj).unwrap();
+        let final_obj = from_str::<RruleTest>(&test_str).unwrap();
 
         assert_eq!(src_obj, final_obj);
     }

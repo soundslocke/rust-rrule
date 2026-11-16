@@ -1,5 +1,7 @@
 #![allow(dead_code, unused_imports)]
 
+use crate::print_all_datetimes;
+use jiff::civil::date;
 use rrule::{Frequency, RRule, RRuleSet, TimeZone, Weekday, ZonedDateTime};
 
 /// This function can be used to test anything and can be changes as you wish.
@@ -16,7 +18,7 @@ fn test_from_string() {
     println!("RRule: {rrule:#?}");
     let result = rrule.all(20);
     println!("Limited: {}", result.limited);
-    crate::print_all_datetimes(&result.dates);
+    print_all_datetimes(&result.dates);
 }
 
 fn test_parsed_rrule() {
@@ -31,11 +33,11 @@ fn test_parsed_rrule() {
     let result = rrule.all(50);
 
     println!("Limited: {}", result.limited);
-    crate::print_all_datetimes(&result.dates);
+    print_all_datetimes(&result.dates);
 }
 
 fn ymd_hms(year: i16, month: i8, day: i8, hour: i8, minute: i8, second: i8) -> ZonedDateTime {
-    jiff::civil::date(year, month, day)
+    date(year, month, day)
         .at(hour, minute, second, 0)
         .to_zoned_datetime(TimeZone::UTC)
         .unwrap()

@@ -7,6 +7,7 @@ use crate::{Frequency, RRule};
 use jiff::civil::{Date, Time};
 use jiff::tz::TimeZone;
 use jiff::{Timestamp, ZonedDateTime};
+use log::warn;
 use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
@@ -120,7 +121,7 @@ impl RRuleIter {
                 if loop_counter >= step_limit {
                     self.finished = true;
                     self.was_limited = true;
-                    log::warn!(
+                    warn!(
                         "Reached max loop counter (`{}`). \
                     See 'validator limits' in docs for more info.",
                         step_limit

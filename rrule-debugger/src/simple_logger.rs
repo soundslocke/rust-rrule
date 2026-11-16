@@ -1,4 +1,4 @@
-use log::{Level, Metadata, Record};
+use log::{Level, Log, Metadata, Record};
 pub use yansi::Paint;
 
 /// An instance of the `Logger`.
@@ -6,7 +6,7 @@ pub static LOGGER: Logger = Logger;
 /// The log collector and handler for the most printed messages in the terminal.
 pub struct Logger;
 
-impl log::Log for Logger {
+impl Log for Logger {
     fn enabled(&self, metadata: &Metadata) -> bool {
         let enable = if cfg!(debug_assertions) {
             // Don't apply additional filters in debug build

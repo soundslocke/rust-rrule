@@ -1,6 +1,7 @@
 //! chrono-shaped helpers so the upstream tests read as they did before the jiff port.
 #![allow(dead_code, non_upper_case_globals)]
 
+use crate::core::floating;
 use jiff::civil::DateTime;
 use jiff::tz::TimeZone;
 use jiff::ZonedDateTime;
@@ -20,7 +21,7 @@ impl Tz {
 
     pub fn zone(self) -> TimeZone {
         match self.0 {
-            "" => crate::core::floating(),
+            "" => floating(),
             name => TimeZone::get(name).expect("test zones are in the tz database"),
         }
     }

@@ -1,8 +1,9 @@
 //! The only code in the corpus runners that touches the `rrule` crate's API.
 //! Porting the crate to another date-time library means rewriting this file;
 //! `corpus.rs` stays as it is.
-use jiff::civil::DateTime;
+use jiff::civil::{Date, DateTime, Time};
 use jiff::tz::{AmbiguousOffset, TimeZone};
+use jiff::Error;
 use rrule::{RRuleSet, ZonedDateTime};
 
 /// How an expected instance is printed (the corpus `INSTANCES-AS` key).
@@ -140,15 +141,15 @@ fn fmt(d: &ZonedDateTime, date_only: bool, f: Format) -> String {
 /// A corpus value (`YYYYMMDD`, floating `YYYYMMDDTHHMMSS`, or UTC `...Z`) as an instant.
 /// A repeated local time takes its earlier instant; a skipped one is an error.
 fn at(v: &str, zone: &TimeZone) -> Result<ZonedDateTime, String> {
-    let bad = |e: jiff::Error| format!("bad value {v}: {e}");
+    let bad = |e: Error| format!("bad value {v}: {e}");
     if let Some(u) = v.strip_suffix('Z') {
         let n = DateTime::strptime("%Y%m%dT%H%M%S", u).map_err(bad)?;
         return n.to_zoned_datetime(TimeZone::UTC).map_err(bad);
     }
     let n = if v.len() == 8 {
-        jiff::civil::Date::strptime("%Y%m%d", v)
+        Date::strptime("%Y%m%d", v)
             .map_err(bad)?
-            .to_datetime(jiff::civil::Time::midnight())
+            .to_datetime(Time::midnight())
     } else {
         DateTime::strptime("%Y%m%dT%H%M%S", v).map_err(bad)?
     };

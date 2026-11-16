@@ -8,7 +8,7 @@ use crate::iter::RRuleIter;
 use crate::parser::str_to_weekday;
 use crate::parser::ContentLineCaptures;
 use crate::parser::ParseError;
-use crate::validator::validate_rrule;
+use crate::validator::validate_rrule::validate_rrule_forced;
 use crate::validator::ValidationError;
 use crate::{RRuleError, RRuleSet, Unvalidated, Validated};
 use jiff::civil::Weekday;
@@ -16,8 +16,8 @@ use jiff::ZonedDateTime;
 #[cfg(feature = "serde")]
 use serde_with::{serde_as, DeserializeFromStr, SerializeDisplay};
 use std::cmp::Ordering;
-use std::fmt::Display;
 use std::fmt::Formatter;
+use std::fmt::{self, Display};
 use std::marker::PhantomData;
 use std::str::FromStr;
 
@@ -42,7 +42,7 @@ pub enum Frequency {
 }
 
 impl Display for Frequency {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let name = match self {
             Self::Yearly => "YEARLY",
             Self::Monthly => "MONTHLY",
@@ -187,7 +187,7 @@ impl Display for NWeekday {
     /// assert_eq!(format!("{}", NWeekday::Nth(1, Weekday::Monday)), "MO");
     /// assert_eq!(format!("{}", NWeekday::Nth(2, Weekday::Monday)), "2MO");
     /// ```
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let weekday = match self {
             Self::Every(wd) => weekday_to_str(*wd),
             Self::Nth(number, wd) => {
@@ -553,7 +553,7 @@ impl RRule<Unvalidated> {
         let rrule = self.finalize_parsed_rrule(&dt_start);
 
         // Validate required checks (defined by RFC 5545)
-        validate_rrule::validate_rrule_forced(&rrule, &dt_start)?;
+        validate_rrule_forced(&rrule, &dt_start)?;
 
         // Check if it is possible to generate a timeset
         match rrule.freq {
@@ -636,7 +636,7 @@ impl<S> Display for RRule<S> {
     /// When you call this function on [`RRule<Unvalidated>`], it can generate an invalid string, like 'FREQ=YEARLY;INTERVAL=-1'
     /// But it is supposed to always generate a valid string on [`RRule<Validated>`].
     /// So if you want a valid string, it's smarter to always use `rrule.validate(ds_start)?.to_string()`.
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.to_ical(false))
     }
 }

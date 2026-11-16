@@ -6,19 +6,20 @@ use take_rrule::take_rrule_from_data;
 use afl::fuzz;
 use core::str::FromStr;
 use rrule::RRuleSet;
-use std::str;
+use std::env::var;
+use std::str::from_utf8;
 
 #[allow(clippy::single_match)]
 fn main() {
     // RRULE_FUZZ_TARGET picks the target below; the default stays the structured one.
-    let fuzz_selector: u8 = std::env::var("RRULE_FUZZ_TARGET")
+    let fuzz_selector: u8 = var("RRULE_FUZZ_TARGET")
         .ok()
         .and_then(|t| t.parse().ok())
         .unwrap_or(2);
     match fuzz_selector {
         // Fuzz the RRuleSet from string
         0 => fuzz!(|data: &[u8]| {
-            if let Ok(s) = str::from_utf8(data) {
+            if let Ok(s) = from_utf8(data) {
                 // Everything here is acceptable, but panic is not what we want.
                 match RRuleSet::from_str(s) {
                     Ok(_rule) => {}
@@ -28,7 +29,7 @@ fn main() {
         }),
         // Fuzz the RRuleSet from string
         1 => fuzz!(|data: &[u8]| {
-            if let Ok(s) = str::from_utf8(data) {
+            if let Ok(s) = from_utf8(data) {
                 // Everything here is acceptable, but panic is not what we want.
                 match RRuleSet::from_str(s) {
                     Ok(rule) => {

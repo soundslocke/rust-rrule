@@ -9,10 +9,15 @@ mod iter_rrule;
 mod parser_rrule;
 mod simple_logger;
 
+use crate::debug::run_debug_function;
+use crate::iter_rrule::from_crash_file as iter_crash_file;
+use crate::parser_rrule::from_crash_file as parse_crash_file;
+use crate::simple_logger::LOGGER;
 use clap::ArgAction;
 use clap::Parser;
-use log::LevelFilter;
+use log::{set_logger, set_max_level, LevelFilter};
 use rrule::ZonedDateTime;
+use std::fs::{read, read_dir};
 
 const CRASHES_PATH: &str = "rrule-afl-fuzz/out/default/crashes/";
 
@@ -77,23 +82,23 @@ fn main() {
     match opts.cmd {
         Commands::Parser {} => {
             for (i, data) in data_files.iter().enumerate() {
-                parser_rrule::from_crash_file(i as u32, data);
+                parse_crash_file(i as u32, data);
             }
         }
         Commands::Rrule {} => {
             for (i, data) in data_files.iter().enumerate() {
-                iter_rrule::from_crash_file(i as u32, data);
+                iter_crash_file(i as u32, data);
             }
         }
         Commands::Debug {} => {
-            debug::run_debug_function();
+            run_debug_function();
         }
     }
 }
 
 /// Read data from crash file
 fn read_crash_file(id: u32) -> Option<Vec<u8>> {
-    let paths = std::fs::read_dir(CRASHES_PATH).unwrap();
+    let paths = read_dir(CRASHES_PATH).unwrap();
     for path in paths {
         let path = path.unwrap().path();
         if !path.is_file() {
@@ -102,7 +107,7 @@ fn read_crash_file(id: u32) -> Option<Vec<u8>> {
         let filename = path.file_name().unwrap().to_str().unwrap();
         if filename.starts_with(&format!("id:{id:06},")) {
             println!("Reading file {path:?}");
-            return Some(std::fs::read(path).expect("Something went wrong reading the file"));
+            return Some(read(path).expect("Something went wrong reading the file"));
         }
     }
     None
@@ -110,7 +115,7 @@ fn read_crash_file(id: u32) -> Option<Vec<u8>> {
 
 /// Read data from crash files
 fn read_all_crash_file() -> Vec<Vec<u8>> {
-    let paths = std::fs::read_dir(CRASHES_PATH).unwrap();
+    let paths = read_dir(CRASHES_PATH).unwrap();
     let mut list = vec![];
     for path in paths {
         let path = path.unwrap().path();
@@ -120,7 +125,7 @@ fn read_all_crash_file() -> Vec<Vec<u8>> {
         let filename = path.file_name().unwrap().to_str().unwrap();
         if filename.starts_with("id:") {
             println!("Reading file {path:?}");
-            list.push(std::fs::read(path).expect("Something went wrong reading the file"));
+            list.push(read(path).expect("Something went wrong reading the file"));
         }
     }
     list
@@ -147,6 +152,6 @@ fn initialize_logger(opts: &Opts) {
         }
     };
     // Setup logger and log level
-    log::set_logger(&simple_logger::LOGGER).unwrap();
-    log::set_max_level(log_filter);
+    set_logger(&LOGGER).unwrap();
+    set_max_level(log_filter);
 }

@@ -7,7 +7,7 @@ use crate::core::WeekdayExt;
 use crate::{Frequency, RRule, RRuleError};
 
 use super::{
-    checks,
+    checks::check_year_range,
     masks::MASKS,
     operation_errors::{checked_add_u32, checked_mul_u32},
     utils::is_leap_year,
@@ -61,7 +61,7 @@ impl DateTimeIter {
 
     fn increment_yearly(&mut self, interval: u16) -> Result<(), RRuleError> {
         self.year += i32::from(interval);
-        checks::check_year_range(self.year)?;
+        check_year_range(self.year)?;
         self.fix_day()
     }
 
@@ -79,7 +79,7 @@ impl DateTimeIter {
                 year_div -= 1;
             }
             self.year += i32::from(year_div);
-            checks::check_year_range(self.year)?;
+            check_year_range(self.year)?;
         }
         Ok(())
     }

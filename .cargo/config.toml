@@ -12,4 +12,5 @@ rustflags = [
     # "-Wmissing_debug_implementations",
     # "-Wmissing_docs",
     "-Wunused_qualifications",
+    "-Wclippy::absolute_paths",
 ]

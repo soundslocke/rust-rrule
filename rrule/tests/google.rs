@@ -7,8 +7,11 @@
 //! included: a cancellation is an exception to the series, not part of the rule.
 //! The set is expanded with [`RRuleSet::google_compat`], the readings Google uses
 //! where RFC 5545 and python-dateutil differ.
+use jiff::Timestamp;
 use rrule::{RRuleSet, TimeZone, ZonedDateTime};
-use serde_json::Value;
+use serde_json::{from_str, Value};
+use std::fs::{read_dir, read_to_string};
+use std::path::Path;
 
 /// Google's expansion limit for a single series.
 const GOOGLE_CAP: usize = 730;
@@ -30,7 +33,7 @@ fn slot(v: &Value) -> Option<String> {
     if let Some(d) = v["date"].as_str() {
         return Some(d.to_string());
     }
-    let ts: jiff::Timestamp = v["dateTime"].as_str()?.parse().ok()?;
+    let ts: Timestamp = v["dateTime"].as_str()?.parse().ok()?;
     Some(ts.to_string())
 }
 
@@ -58,7 +61,7 @@ fn expand(series: &Value) -> Result<Vec<String>, String> {
             .as_str()
             .ok_or("spec start has no timeZone")?;
         // An archived start carries an offset; express it as wall-clock time in its zone.
-        let local = match raw.parse::<jiff::Timestamp>() {
+        let local = match raw.parse::<Timestamp>() {
             Ok(ts) => ts
                 .to_zoned_datetime(TimeZone::get(tz).map_err(|e| e.to_string())?)
                 .strftime("%Y%m%dT%H%M%S")
@@ -80,11 +83,11 @@ fn expand(series: &Value) -> Result<Vec<String>, String> {
         .parse::<RRuleSet>()
         .map_err(|e| format!("{e}: {text}"))?
         .google_compat();
-    let time_min: jiff::Timestamp = spec["time_min"]
+    let time_min: Timestamp = spec["time_min"]
         .as_str()
         .and_then(|t| t.parse().ok())
         .ok_or("spec has no time_min")?;
-    let time_max: jiff::Timestamp = spec["time_max"]
+    let time_max: Timestamp = spec["time_max"]
         .as_str()
         .and_then(|t| t.parse().ok())
         .ok_or("spec has no time_max")?;
@@ -113,8 +116,8 @@ fn expand(series: &Value) -> Result<Vec<String>, String> {
     Ok(out)
 }
 
-fn run(path: &std::path::Path) -> (usize, usize, Vec<String>) {
-    let data: Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+fn run(path: &Path) -> (usize, usize, Vec<String>) {
+    let data: Value = from_str(&read_to_string(path).unwrap()).unwrap();
     let (mut pass, mut fail, mut unexpected) = (0, 0, vec![]);
     for series in data["series"].as_array().into_iter().flatten() {
         let name = series["spec"]["name"].as_str().unwrap_or("?");
@@ -171,8 +174,8 @@ fn run(path: &std::path::Path) -> (usize, usize, Vec<String>) {
 
 #[test]
 fn google_fixtures() {
-    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/data/google");
-    let mut files: Vec<_> = std::fs::read_dir(&dir)
+    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/data/google");
+    let mut files: Vec<_> = read_dir(&dir)
         .unwrap()
         .filter_map(|e| e.ok().map(|e| e.path()))
         .filter(|p| {
@@ -181,7 +184,7 @@ fn google_fixtures() {
         })
         .collect();
     // Captures of real calendars stay out of git; include them when present.
-    if let Ok(private) = std::fs::read_dir(dir.join("private")) {
+    if let Ok(private) = read_dir(dir.join("private")) {
         files.extend(
             private
                 .filter_map(|e| e.ok().map(|e| e.path()))

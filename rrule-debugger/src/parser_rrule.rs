@@ -1,12 +1,15 @@
+use crate::print_all_datetimes;
 use rrule::RRuleSet;
+use std::panic::catch_unwind;
+use std::str::from_utf8;
 use std::str::FromStr;
 
 pub fn from_crash_file(id: u32, data: &[u8]) {
     println!("--------- Test file {id} -----------");
 
-    let data_string = std::str::from_utf8(data).unwrap();
+    let data_string = from_utf8(data).unwrap();
     println!("Test {id} String: \n\n{data_string:?}\n");
-    let result = std::panic::catch_unwind(|| {
+    let result = catch_unwind(|| {
         parse_rrule_from_string(data_string);
     });
     println!("Test {id} status: {result:?}");
@@ -18,7 +21,7 @@ pub fn parse_rrule_from_string(rrule: &str) {
         Ok(rrule) => {
             println!("RRule data: {rrule:#?}");
             let result = rrule.all(50);
-            crate::print_all_datetimes(&result.dates);
+            print_all_datetimes(&result.dates);
             if result.limited {
                 println!("RRule was limited");
             }

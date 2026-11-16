@@ -1,7 +1,11 @@
+use crate::print_all_datetimes;
+use rrule_afl_fuzz::take_rrule::take_rrule_from_data;
+use std::panic::catch_unwind;
+
 pub fn from_crash_file(id: u32, data: &[u8]) {
     println!("--------- Test file {id} -----------");
 
-    let result = std::panic::catch_unwind(|| {
+    let result = catch_unwind(|| {
         rrule_from_bin(data);
     });
     println!("Test {id} status: {result:?}");
@@ -9,11 +13,11 @@ pub fn from_crash_file(id: u32, data: &[u8]) {
 }
 
 pub fn rrule_from_bin(data: &[u8]) {
-    match rrule_afl_fuzz::take_rrule::take_rrule_from_data(data) {
+    match take_rrule_from_data(data) {
         Some(rule) => {
             println!("RRule data: {rule:#?}");
             let result = rule.all(50);
-            crate::print_all_datetimes(&result.dates);
+            print_all_datetimes(&result.dates);
             if result.limited {
                 println!("RRule was limited");
             }

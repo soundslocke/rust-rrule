@@ -1,5 +1,7 @@
 //! Runs libical's recurrence corpus (tests/data/libical_icalrecur_test.txt, MPL-2.0) against this crate.
 use rrule::{RRuleSet, ZonedDateTime};
+use std::env::var;
+use std::fs::read_to_string;
 
 struct Case {
     line: usize,
@@ -61,14 +63,14 @@ fn fmt(dt: &ZonedDateTime, date_only: bool, utc: bool) -> String {
 
 #[test]
 fn libical_corpus() {
-    let path = std::env::var("LIBICAL_RECUR").unwrap_or_else(|_| {
+    let path = var("LIBICAL_RECUR").unwrap_or_else(|_| {
         concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/tests/data/libical_icalrecur_test.txt"
         )
         .into()
     });
-    let cases = parse(&std::fs::read_to_string(path).unwrap());
+    let cases = parse(&read_to_string(path).unwrap());
     let (mut pass, mut fail, mut err) = (0, 0, 0);
     for c in &cases {
         let date_only = !c.dtstart.contains('T');

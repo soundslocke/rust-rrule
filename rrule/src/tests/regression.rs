@@ -1,5 +1,9 @@
-use crate::tests::common;
+use crate::tests::common::{check_occurrences, ymd_hms};
 use crate::{Frequency, RRule, RRuleSet, Unvalidated, Weekday};
+use jiff::civil::date;
+use jiff::tz::TimeZone;
+use jiff::Timestamp;
+use std::time::Instant;
 
 #[test]
 fn issue_34() {
@@ -9,7 +13,7 @@ RRULE:FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-2"
         .unwrap()
         .all(7)
         .dates;
-    common::check_occurrences(
+    check_occurrences(
         &dates,
         &[
             "1997-09-29T09:00:00-04:00",
@@ -89,7 +93,7 @@ fn dtstart_late_in_year_9999_iterates_to_the_end_of_the_range() {
     let set = "DTSTART:99991225T000000Z\nRRULE:FREQ=WEEKLY;COUNT=3"
         .parse::<RRuleSet>()
         .unwrap();
-    common::check_occurrences(&set.clone().all(10).dates, &["9999-12-25T00:00:00+00:00"]);
+    check_occurrences(&set.clone().all(10).dates, &["9999-12-25T00:00:00+00:00"]);
     assert_eq!(
         set.to_string(),
         "DTSTART:99991225T000000Z\nRRULE:FREQ=WEEKLY;COUNT=3;BYHOUR=0;BYMINUTE=0;BYSECOND=0;BYDAY=SA"
@@ -119,8 +123,7 @@ fn rules_from_the_last_days_of_year_9999_do_not_panic() {
 
 #[test]
 fn iterating_near_the_ends_of_the_supported_range_does_not_panic() {
-    use jiff::tz::TimeZone;
-    let validated_at = common::ymd_hms(2020, 1, 1, 0, 0, 0);
+    let validated_at = ymd_hms(2020, 1, 1, 0, 0, 0);
     let mut rules = vec![RRule::new(Frequency::Weekly).count(3)];
     // BYWEEKNO looks at the previous year's weeks for some week starts only.
     for wkst in [
@@ -141,7 +144,7 @@ fn iterating_near_the_ends_of_the_supported_range_does_not_panic() {
     }
     for rule in rules {
         let rule = rule.validate(validated_at.clone()).unwrap();
-        for start in [jiff::Timestamp::MAX, jiff::Timestamp::MIN] {
+        for start in [Timestamp::MAX, Timestamp::MIN] {
             // The rule was validated against another DTSTART, which the API allows.
             let set = RRuleSet::new(start.to_zoned_datetime(TimeZone::UTC)).rrule(rule.clone());
             let _ = set.all(10);
@@ -177,7 +180,7 @@ fn until_ends_iteration_even_when_nothing_matches() {
     let set = "DTSTART:20060416\nRRULE:FREQ=YEARLY;UNTIL=20070405;BYDAY=9SU;BYMONTH=4"
         .parse::<RRuleSet>()
         .unwrap();
-    let started = std::time::Instant::now();
+    let started = Instant::now();
     assert!(set.all(50).dates.is_empty());
     // Without the UNTIL check this walks ~8000 years to the end of the year range,
     // taking seconds in a debug build; with it, one year.
@@ -202,7 +205,7 @@ fn dtstart_past_the_last_representable_instant_is_a_parse_error() {
 fn dtstart_in_year_0_is_accepted_and_written_back() {
     let text = "DTSTART:00001231T000000Z\nRRULE:FREQ=YEARLY;COUNT=2";
     let set = text.parse::<RRuleSet>().unwrap();
-    common::check_occurrences(
+    check_occurrences(
         &set.clone().all(10).dates,
         &["0000-12-31T00:00:00+00:00", "0001-12-31T00:00:00+00:00"],
     );
@@ -214,9 +217,7 @@ fn dtstart_in_year_0_is_accepted_and_written_back() {
 
 #[test]
 fn dtstart_before_year_0_is_rejected() {
-    let start = jiff::civil::date(-1, 12, 31)
-        .to_zoned_datetime(jiff::tz::TimeZone::UTC)
-        .unwrap();
+    let start = date(-1, 12, 31).to_zoned_datetime(TimeZone::UTC).unwrap();
     assert!(RRule::new(Frequency::Yearly).count(2).build(start).is_err());
 }
 
@@ -227,7 +228,7 @@ const FAR_MATCH: &str = "DTSTART:20160301T090000Z\n\
 #[test]
 fn default_iteration_limit_reaches_a_match_10226_steps_out() {
     let result = FAR_MATCH.parse::<RRuleSet>().unwrap().all(1);
-    common::check_occurrences(&result.dates, &["2044-02-29T09:00:00+00:00"]);
+    check_occurrences(&result.dates, &["2044-02-29T09:00:00+00:00"]);
 }
 
 #[test]

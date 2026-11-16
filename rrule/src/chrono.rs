@@ -4,12 +4,15 @@
 //! at the boundary. Zones are matched by IANA name, so a conversion fails when
 //! one side's time zone database does not know the other side's zone.
 
+use chrono::TimeZone as ChronoTimeZone;
 use chrono::{DateTime, FixedOffset, Utc};
+use chrono_tz::Tz;
 use jiff::tz::TimeZone;
 use jiff::{Timestamp, ZonedDateTime};
+use thiserror::Error;
 
 /// Why a value could not be converted.
-#[derive(Debug, thiserror::Error, PartialEq, Eq)]
+#[derive(Debug, Error, PartialEq, Eq)]
 pub enum ConversionError {
     /// The instant is outside the range the target library supports.
     #[error("`{0}` is out of range for the target date-time type")]
@@ -22,14 +25,14 @@ pub enum ConversionError {
     UnnamedZone,
 }
 
-fn timestamp_of<Tz: chrono::TimeZone>(dt: &DateTime<Tz>) -> Result<Timestamp, ConversionError> {
+fn timestamp_of<Z: ChronoTimeZone>(dt: &DateTime<Z>) -> Result<Timestamp, ConversionError> {
     let nanos = i32::try_from(dt.timestamp_subsec_nanos())
         .map_err(|_| ConversionError::OutOfRange(dt.to_rfc3339()))?;
     Timestamp::new(dt.timestamp(), nanos).map_err(|_| ConversionError::OutOfRange(dt.to_rfc3339()))
 }
 
 /// Converts a chrono-tz date-time, keeping its IANA zone.
-pub fn from_chrono_tz(dt: &DateTime<chrono_tz::Tz>) -> Result<ZonedDateTime, ConversionError> {
+pub fn from_chrono_tz(dt: &DateTime<Tz>) -> Result<ZonedDateTime, ConversionError> {
     let name = dt.timezone().name();
     let tz = TimeZone::get(name).map_err(|_| ConversionError::UnknownZone(name.into()))?;
     Ok(timestamp_of(dt)?.to_zoned_datetime(tz))
@@ -41,12 +44,12 @@ pub fn from_utc(dt: &DateTime<Utc>) -> Result<ZonedDateTime, ConversionError> {
 }
 
 /// Converts `zdt` to chrono-tz, keeping its IANA zone.
-pub fn to_chrono_tz(zdt: &ZonedDateTime) -> Result<DateTime<chrono_tz::Tz>, ConversionError> {
+pub fn to_chrono_tz(zdt: &ZonedDateTime) -> Result<DateTime<Tz>, ConversionError> {
     let name = zdt
         .time_zone()
         .iana_name()
         .ok_or(ConversionError::UnnamedZone)?;
-    let tz: chrono_tz::Tz = name
+    let tz: Tz = name
         .parse()
         .map_err(|_| ConversionError::UnknownZone(name.into()))?;
     Ok(to_fixed_offset(zdt)?.with_timezone(&tz))
@@ -67,13 +70,12 @@ pub fn to_fixed_offset(zdt: &ZonedDateTime) -> Result<DateTime<FixedOffset>, Con
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::TimeZone as _;
+    use crate::RRuleSet;
+    use chrono_tz::Europe::Berlin;
 
     #[test]
     fn round_trips_a_named_zone() {
-        let berlin = chrono_tz::Europe::Berlin
-            .with_ymd_and_hms(2021, 3, 28, 3, 30, 0)
-            .unwrap();
+        let berlin = Berlin.with_ymd_and_hms(2021, 3, 28, 3, 30, 0).unwrap();
         let zoned = from_chrono_tz(&berlin).unwrap();
         assert_eq!(zoned.time_zone().iana_name(), Some("Europe/Berlin"));
         assert_eq!(
@@ -85,7 +87,7 @@ mod tests {
 
     #[test]
     fn floating_converts_only_to_a_fixed_offset() {
-        let set: crate::RRuleSet = "DTSTART:20210313T023000\nRRULE:FREQ=DAILY;COUNT=1"
+        let set: RRuleSet = "DTSTART:20210313T023000\nRRULE:FREQ=DAILY;COUNT=1"
             .parse()
             .unwrap();
         let floating = set.get_dt_start();

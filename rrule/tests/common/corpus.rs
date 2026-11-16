@@ -1,6 +1,8 @@
 //! Parses the corpus format described in tests/data/README.md and checks each case
 //! through `adapter`. Knows nothing about the crate's types.
-use super::adapter::{self, Expansion, Format, Query};
+use super::adapter::{expand, Expansion, Format, Query};
+use std::fs::read_to_string;
+use std::panic::{catch_unwind, set_hook, take_hook, AssertUnwindSafe};
 
 #[derive(Default)]
 struct Case {
@@ -130,16 +132,14 @@ fn query<'a>(c: &'a Case, lines: &'a [String], max: usize) -> Query<'a> {
 }
 
 fn run_guarded(q: &Query) -> Result<Expansion, String> {
-    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| adapter::expand(q))).unwrap_or_else(
-        |p| {
-            let msg = p
-                .downcast_ref::<String>()
-                .cloned()
-                .or_else(|| p.downcast_ref::<&str>().map(|s| s.to_string()))
-                .unwrap_or_default();
-            Err(format!("panic: {msg}"))
-        },
-    )
+    catch_unwind(AssertUnwindSafe(|| expand(q))).unwrap_or_else(|p| {
+        let msg = p
+            .downcast_ref::<String>()
+            .cloned()
+            .or_else(|| p.downcast_ref::<&str>().map(|s| s.to_string()))
+            .unwrap_or_default();
+        Err(format!("panic: {msg}"))
+    })
 }
 
 fn first_diff(exp: &[String], got: &[String]) -> String {
@@ -238,10 +238,10 @@ fn check(c: &Case) -> (Outcome, bool) {
 /// Runs every case in the corpus at `path` and prints one line per non-passing case plus
 /// a summary. Reports rather than asserts: a failing case does not fail `cargo test`.
 pub fn run(name: &str, path: &str) {
-    let src = std::fs::read_to_string(path).unwrap_or_else(|e| panic!("{path}: {e}"));
+    let src = read_to_string(path).unwrap_or_else(|e| panic!("{path}: {e}"));
     let cases = parse(&src).unwrap_or_else(|e| panic!("{path}: {e}"));
-    let prev_hook = std::panic::take_hook();
-    std::panic::set_hook(Box::new(|_| {}));
+    let prev_hook = take_hook();
+    set_hook(Box::new(|_| {}));
     let (mut pass, mut fail, mut err) = (0, 0, 0);
     for c in &cases {
         let (outcome, limited) = check(c);
@@ -274,7 +274,7 @@ pub fn run(name: &str, path: &str) {
             }
         }
     }
-    std::panic::set_hook(prev_hook);
+    set_hook(prev_hook);
     println!(
         "\n{name} corpus: {} cases, {pass} pass, {fail} fail, {err} errors",
         cases.len()

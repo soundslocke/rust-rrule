@@ -1,3 +1,4 @@
+use jiff::civil::Weekday;
 use jiff::tz::TimeZone;
 use jiff::ZonedDateTime;
 
@@ -87,7 +88,7 @@ pub(crate) trait WeekdayExt {
     fn num_days_from_monday(self) -> u32;
 }
 
-impl WeekdayExt for jiff::civil::Weekday {
+impl WeekdayExt for Weekday {
     fn num_days_from_monday(self) -> u32 {
         u32::try_from(self.to_monday_zero_offset()).expect("0-6 is covered by u32")
     }

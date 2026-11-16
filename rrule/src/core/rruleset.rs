@@ -3,10 +3,13 @@ use crate::core::{datetime_to_ical_format, datetime_to_ical_value, is_floating};
 use crate::iter::DEFAULT_ITERATION_LIMIT;
 use crate::parser::{ContentLine, Grammar};
 use crate::{ParseError, RRule, RRuleError};
+use jiff::civil::Time;
 use jiff::ZonedDateTime;
+#[cfg(not(feature = "exrule"))]
+use log::warn;
 #[cfg(feature = "serde")]
 use serde_with::{serde_as, DeserializeFromStr, SerializeDisplay};
-use std::fmt::Display;
+use std::fmt::{self, Display, Formatter};
 use std::str::FromStr;
 
 /// A validated Recurrence Rule that can be used to create an iterator.
@@ -312,7 +315,7 @@ impl RRuleSet {
                     }
                     #[cfg(not(feature = "exrule"))]
                     {
-                        log::warn!("Found EXRULE in input, but it will be ignored since the `exrule` feature is not enabled.");
+                        warn!("Found EXRULE in input, but it will be ignored since the `exrule` feature is not enabled.");
                         Ok(rrule_set)
                     }
                 }
@@ -374,7 +377,7 @@ impl RRuleSet {
         let as_dates = self.dt_start_is_date
             && dates
                 .iter()
-                .all(|d| is_floating(d.time_zone()) && d.time() == jiff::civil::Time::midnight());
+                .all(|d| is_floating(d.time_zone()) && d.time() == Time::midnight());
         if as_dates {
             let list: Vec<_> = dates.iter().map(ical_date).collect();
             format!("VALUE=DATE:{}", list.join(","))
@@ -393,7 +396,7 @@ fn ical_date(dt: &ZonedDateTime) -> String {
 impl Display for RRuleSet {
     /// Prints a valid set of iCalendar properties which can be used to create a new [`RRuleSet`] later.
     /// You may use the generated string to create a new iCalendar component, like VEVENT.
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let start_datetime = if self.dt_start_is_date {
             format!("DTSTART;VALUE=DATE:{}", ical_date(&self.dt_start))
         } else {
