@@ -9,7 +9,6 @@ use rrule::RRuleSet;
 use std::env::var;
 use std::str::from_utf8;
 
-#[allow(clippy::single_match)]
 fn main() {
     // RRULE_FUZZ_TARGET picks the target below; the default stays the structured one.
     let fuzz_selector: u8 = var("RRULE_FUZZ_TARGET")
@@ -18,35 +17,34 @@ fn main() {
         .unwrap_or(2);
     match fuzz_selector {
         // Fuzz the RRuleSet from string
-        0 => fuzz!(|data: &[u8]| {
-            if let Ok(s) = from_utf8(data) {
-                // Everything here is acceptable, but panic is not what we want.
-                match RRuleSet::from_str(s) {
-                    Ok(_rule) => {}
-                    Err(_) => {}
+        0 => {
+            fuzz!(|data: &[u8]| {
+                if let Ok(s) = from_utf8(data) {
+                    // Any result is acceptable; only a panic is a finding.
+                    let _ = RRuleSet::from_str(s);
                 }
-            }
-        }),
-        // Fuzz the RRuleSet from string
-        1 => fuzz!(|data: &[u8]| {
-            if let Ok(s) = from_utf8(data) {
-                // Everything here is acceptable, but panic is not what we want.
-                match RRuleSet::from_str(s) {
-                    Ok(rule) => {
+            });
+        }
+        // Fuzz the RRuleSet from string, then expand it
+        1 => {
+            fuzz!(|data: &[u8]| {
+                if let Ok(s) = from_utf8(data) {
+                    // Any result is acceptable; only a panic is a finding.
+                    if let Ok(rule) = RRuleSet::from_str(s) {
                         let _ = rule.all(50);
                     }
-                    Err(_) => {}
                 }
-            }
-        }),
+            });
+        }
         // Fuzz directly to RRule, skip parser
-        2 => fuzz!(|data: &[u8]| {
-            let rule = match take_rrule_from_data(data) {
-                Some(rule) => rule,
-                None => return, // Not enough data to create `RRule`
-            };
-            let _ = rule.all(50);
-        }),
+        2 => {
+            fuzz!(|data: &[u8]| {
+                // Too little data to build an `RRule` is not a finding.
+                if let Some(rule) = take_rrule_from_data(data) {
+                    let _ = rule.all(50);
+                }
+            });
+        }
         _ => {}
     }
 }

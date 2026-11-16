@@ -2,9 +2,13 @@
 
 use jiff::Timestamp;
 use rrule::{NWeekday, TimeZone, Weekday, ZonedDateTime};
-use std::convert::TryInto;
 
-// https://doc.rust-lang.org/std/mem/fn.size_of.html
+/// Takes the next `N` bytes, or none when fewer than `N` are left.
+fn take_array<const N: usize>(input: &mut &[u8]) -> Option<[u8; N]> {
+    let (bytes, rest) = input.split_first_chunk::<N>()?;
+    *input = rest;
+    Some(*bytes)
+}
 
 /// Uses max 1 + 5*4 = 21 bytes
 pub fn take_vec_of_nweekday(input: &mut &[u8]) -> Vec<NWeekday> {
@@ -64,7 +68,8 @@ pub fn take_datetime(input: &mut &[u8]) -> ZonedDateTime {
     // Fold arbitrary input into jiff's supported instant range.
     let (min, max) = (Timestamp::MIN.as_second(), Timestamp::MAX.as_second());
     let seconds = min + take_data_i64(input).rem_euclid(max - min);
-    let nanos = i32::try_from(take_data_u32(input) % 1_000_000_000).unwrap();
+    // Below 10^9, so it always fits.
+    let nanos = i32::try_from(take_data_u32(input) % 1_000_000_000).unwrap_or(0);
     Timestamp::new(seconds, nanos)
         .unwrap_or(Timestamp::UNIX_EPOCH)
         .to_zoned_datetime(TimeZone::UTC)
@@ -87,13 +92,7 @@ pub fn take_weekday(input: &mut &[u8]) -> Weekday {
 /// Uses 1 byte
 /// If no bytes left it will always return default (`0`)
 pub fn take_byte(input: &mut &[u8]) -> u8 {
-    let byte_len = size_of::<u8>();
-    if input.len() < byte_len {
-        return u8::default();
-    }
-    let (int_bytes, rest) = input.split_at(byte_len);
-    *input = rest;
-    u8::from_be_bytes(int_bytes.try_into().expect("Failed to convert to u8"))
+    take_array(input).map_or(0, u8::from_be_bytes)
 }
 
 /// Uses max 1+2+1 = 4 byte
@@ -114,122 +113,76 @@ pub fn take_data_u8(input: &mut &[u8]) -> u8 {
 /// Uses 1 byte
 /// If no bytes left it will always return default (`0`)
 pub fn take_data_i8(input: &mut &[u8]) -> i8 {
-    let byte_len = size_of::<i8>();
-    if input.len() < byte_len {
-        return i8::default();
-    }
-    let (int_bytes, rest) = input.split_at(byte_len);
-    *input = rest;
-    i8::from_be_bytes(int_bytes.try_into().expect("Failed to convert to u8"))
+    take_array(input).map_or(0, i8::from_be_bytes)
 }
 
 /// Uses 2 bytes
 /// If no bytes left it will always return default (`0`)
 pub fn take_data_i16(input: &mut &[u8]) -> i16 {
-    let byte_len = size_of::<i16>();
-    if input.len() < byte_len {
-        return i16::default();
-    }
-    let (int_bytes, rest) = input.split_at(byte_len);
-    *input = rest;
-    i16::from_be_bytes(int_bytes.try_into().expect("Failed to convert to u8"))
+    take_array(input).map_or(0, i16::from_be_bytes)
 }
 
 /// Uses 4 bytes
 /// If no bytes left it will always return default (`0`)
 pub fn take_data_i32(input: &mut &[u8]) -> i32 {
-    let byte_len = size_of::<i32>();
-    if input.len() < byte_len {
-        return i32::default();
-    }
-    let (int_bytes, rest) = input.split_at(byte_len);
-    *input = rest;
-    i32::from_be_bytes(int_bytes.try_into().expect("Failed to convert to u8"))
+    take_array(input).map_or(0, i32::from_be_bytes)
 }
 
 /// Uses 8 bytes
 /// If no bytes left it will always return default (`0`)
 pub fn take_data_i64(input: &mut &[u8]) -> i64 {
-    let byte_len = size_of::<i64>();
-    if input.len() < byte_len {
-        return i64::default();
-    }
-    let (int_bytes, rest) = input.split_at(byte_len);
-    *input = rest;
-    i64::from_be_bytes(int_bytes.try_into().expect("Failed to convert to u8"))
+    take_array(input).map_or(0, i64::from_be_bytes)
 }
 
 /// Uses 2 bytes
 /// If no bytes left it will always return default (`0`)
 pub fn take_data_u16(input: &mut &[u8]) -> u16 {
-    let byte_len = size_of::<u16>();
-    if input.len() < byte_len {
-        return u16::default();
-    }
-    let (int_bytes, rest) = input.split_at(byte_len);
-    *input = rest;
-    u16::from_be_bytes(int_bytes.try_into().expect("Failed to convert to u8"))
+    take_array(input).map_or(0, u16::from_be_bytes)
 }
 
 /// Uses 4 bytes
 /// If no bytes left it will always return default (`0`)
 pub fn take_data_u32(input: &mut &[u8]) -> u32 {
-    let byte_len = size_of::<u32>();
-    if input.len() < byte_len {
-        return u32::default();
-    }
-    let (int_bytes, rest) = input.split_at(byte_len);
-    *input = rest;
-    u32::from_be_bytes(int_bytes.try_into().expect("Failed to convert to u8"))
+    take_array(input).map_or(0, u32::from_be_bytes)
 }
 
 /// Uses 8 bytes
 /// If no bytes left it will always return default (`0`)
 pub fn take_data_u64(input: &mut &[u8]) -> u64 {
-    let byte_len = size_of::<u64>();
-    if input.len() < byte_len {
-        return u64::default();
-    }
-    let (int_bytes, rest) = input.split_at(byte_len);
-    *input = rest;
-    u64::from_be_bytes(int_bytes.try_into().expect("Failed to convert to u8"))
+    take_array(input).map_or(0, u64::from_be_bytes)
 }
 
 /// Uses max 8 bytes
 /// If no bytes left it will always return default (`0`)
 pub fn take_data_usize(input: &mut &[u8]) -> usize {
-    let byte_len = size_of::<usize>();
-    if input.len() < byte_len {
-        return usize::default();
-    }
-    let (int_bytes, rest) = input.split_at(byte_len);
-    *input = rest;
-    usize::from_be_bytes(int_bytes.try_into().expect("Failed to convert to u8"))
+    take_array(input).map_or(0, usize::from_be_bytes)
 }
 
 /// Uses max 8 bytes
 /// If no bytes left it will always return default (`0`)
 pub fn take_data_isize(input: &mut &[u8]) -> isize {
-    let byte_len = size_of::<isize>();
-    if input.len() < byte_len {
-        return isize::default();
-    }
-    let (int_bytes, rest) = input.split_at(byte_len);
-    *input = rest;
-    isize::from_be_bytes(int_bytes.try_into().expect("Failed to convert to u8"))
+    take_array(input).map_or(0, isize::from_be_bytes)
 }
 
 /// Uses 1 byte + [`take_datetime`]: a DTSTART in one of a few zones, chosen to reach
 /// DST gaps and folds (including a 30-minute one) as well as UTC and floating time.
+///
+/// # Panics
+///
+/// If the time zone database lacks one of those zones, as on a host without tzdata.
 pub fn take_zoned_start(input: &mut &[u8]) -> ZonedDateTime {
     let zone = match take_byte(input) % 7 {
         0 => TimeZone::UTC,
         1 => TimeZone::unknown(),
-        2 => TimeZone::get("America/Los_Angeles").unwrap(),
-        3 => TimeZone::get("America/New_York").unwrap(),
-        4 => TimeZone::get("Europe/London").unwrap(),
-        5 => TimeZone::get("Australia/Lord_Howe").unwrap(),
-        _ => TimeZone::get("Asia/Kolkata").unwrap(),
+        2 => named_zone("America/Los_Angeles"),
+        3 => named_zone("America/New_York"),
+        4 => named_zone("Europe/London"),
+        5 => named_zone("Australia/Lord_Howe"),
+        _ => named_zone("Asia/Kolkata"),
     };
     take_datetime(input).with_time_zone(zone)
+}
+
+fn named_zone(name: &str) -> TimeZone {
+    TimeZone::get(name).expect("the time zone database has every fuzzed zone")
 }
