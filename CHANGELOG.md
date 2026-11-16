@@ -48,12 +48,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a rule from such a DTSTART (possible by pairing an `RRule` validated against
   one start with an `RRuleSet` built on another) yields nothing instead of
   panicking. Near either end of the range, days that do not exist are skipped.
-- Dates are `jiff::Zoned` instead of `chrono::DateTime<rrule::Tz>`, and `chrono`
-  and `chrono-tz` are no longer dependencies. `rrule::Tz` is gone; zones are
-  `jiff::tz::TimeZone`, re-exported as `rrule::TimeZone` along with `Zoned` and
-  `Weekday` (now `jiff::civil::Weekday`).
-- The `chrono` feature adds `rrule::chrono`, which converts between `Zoned` and
-  `chrono::DateTime` (`chrono_tz::Tz`, `Utc`, `FixedOffset`) at the API boundary.
+- Dates are `jiff::ZonedDateTime` (Jiff 1.0) instead of
+  `chrono::DateTime<rrule::Tz>`, and `chrono` and `chrono-tz` are no longer
+  dependencies. `rrule::Tz` is gone; zones are `jiff::tz::TimeZone`,
+  re-exported as `rrule::TimeZone` along with `ZonedDateTime` and `Weekday`
+  (now `jiff::civil::Weekday`).
+- The `chrono` feature adds `rrule::chrono`, which converts between
+  `ZonedDateTime` and `chrono::DateTime` (`chrono_tz::Tz`, `Utc`,
+  `FixedOffset`) at the API boundary.
+- MSRV is bumped to `1.85.0` from `1.81.0`, as Jiff 1.0 requires.
 - `RRule::by_month` takes month numbers (`&[u8]`, 1-12) instead of `chrono::Month`.
 - A floating DTSTART, RDATE, EXDATE or UNTIL (no `TZID`, no `Z`) is placed in
   `jiff::tz::TimeZone::unknown()`, which behaves like UTC, instead of the

@@ -3,7 +3,7 @@ use crate::core::floating;
 use crate::NWeekday;
 use jiff::civil::{DateTime, Weekday};
 use jiff::tz::TimeZone;
-use jiff::Zoned;
+use jiff::ZonedDateTime;
 
 /// Looks up an IANA time zone name, as used in a `TZID` parameter.
 pub(crate) fn parse_timezone(tz: &str) -> Result<TimeZone, ParseError> {
@@ -21,7 +21,7 @@ pub(crate) fn datestring_to_date(
     dt: &str,
     tz: Option<&TimeZone>,
     property: &str,
-) -> Result<Zoned, ParseError> {
+) -> Result<ZonedDateTime, ParseError> {
     let invalid = || ParseError::InvalidDateTime {
         value: dt.into(),
         property: property.into(),
@@ -51,7 +51,7 @@ pub(crate) fn datestring_to_date(
     } else {
         tz.cloned().unwrap_or_else(floating)
     };
-    zone.to_zoned(datetime).map_err(|_| invalid())
+    zone.to_zoned_datetime(datetime).map_err(|_| invalid())
 }
 
 /// Attempts to convert a `str` to a `Weekday`.

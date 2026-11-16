@@ -3,7 +3,7 @@ use crate::core::{datetime_to_ical_format, datetime_to_ical_value, is_floating};
 use crate::iter::DEFAULT_ITERATION_LIMIT;
 use crate::parser::{ContentLine, Grammar};
 use crate::{ParseError, RRule, RRuleError};
-use jiff::Zoned;
+use jiff::ZonedDateTime;
 #[cfg(feature = "serde")]
 use serde_with::{serde_as, DeserializeFromStr, SerializeDisplay};
 use std::fmt::Display;
@@ -17,17 +17,17 @@ pub struct RRuleSet {
     /// List of rrules.
     pub(crate) rrule: Vec<RRule>,
     /// List of rdates.
-    pub(crate) rdate: Vec<Zoned>,
+    pub(crate) rdate: Vec<ZonedDateTime>,
     /// List of exules.
     pub(crate) exrule: Vec<RRule>,
     /// List of exdates.
-    pub(crate) exdate: Vec<Zoned>,
+    pub(crate) exdate: Vec<ZonedDateTime>,
     /// The start datetime of the recurring event.
-    pub(crate) dt_start: Zoned,
+    pub(crate) dt_start: ZonedDateTime,
     /// If set, all returned recurrences must be before this date.
-    pub(crate) before: Option<Zoned>,
+    pub(crate) before: Option<ZonedDateTime>,
     /// If set, all returned recurrences must be after this date.
-    pub(crate) after: Option<Zoned>,
+    pub(crate) after: Option<ZonedDateTime>,
     /// If validation limits are enabled
     pub(crate) limited: bool,
     /// Steps without an occurrence before a limited iteration gives up.
@@ -46,7 +46,7 @@ pub struct RRuleSet {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct RRuleResult {
     /// List of recurrences.
-    pub dates: Vec<Zoned>,
+    pub dates: Vec<ZonedDateTime>,
     /// It is being true if the list of dates is limited.
     /// To indicate that it can potentially contain more dates.
     pub limited: bool,
@@ -55,7 +55,7 @@ pub struct RRuleResult {
 impl RRuleSet {
     /// Creates an empty [`RRuleSet`], starting from `ds_start`.
     #[must_use]
-    pub fn new(dt_start: Zoned) -> Self {
+    pub fn new(dt_start: ZonedDateTime) -> Self {
         Self {
             dt_start,
             rrule: vec![],
@@ -151,7 +151,7 @@ impl RRuleSet {
     ///
     /// This value will not be used if you use the `Iterator` API directly.
     #[must_use]
-    pub fn before(mut self, dt: Zoned) -> Self {
+    pub fn before(mut self, dt: ZonedDateTime) -> Self {
         self.before = Some(dt);
         self
     }
@@ -160,7 +160,7 @@ impl RRuleSet {
     ///
     /// This value will not be used if you use the `Iterator` API directly.
     #[must_use]
-    pub fn after(mut self, dt: Zoned) -> Self {
+    pub fn after(mut self, dt: ZonedDateTime) -> Self {
         self.after = Some(dt);
         self
     }
@@ -182,14 +182,14 @@ impl RRuleSet {
 
     /// Adds a new rdate to the set.
     #[must_use]
-    pub fn rdate(mut self, rdate: Zoned) -> Self {
+    pub fn rdate(mut self, rdate: ZonedDateTime) -> Self {
         self.rdate.push(rdate);
         self
     }
 
     /// Adds a new exdate to the set.
     #[must_use]
-    pub fn exdate(mut self, exdate: Zoned) -> Self {
+    pub fn exdate(mut self, exdate: ZonedDateTime) -> Self {
         self.exdate.push(exdate);
         self
     }
@@ -211,14 +211,14 @@ impl RRuleSet {
 
     /// Sets the rdates of the set.
     #[must_use]
-    pub fn set_rdates(mut self, rdates: Vec<Zoned>) -> Self {
+    pub fn set_rdates(mut self, rdates: Vec<ZonedDateTime>) -> Self {
         self.rdate = rdates;
         self
     }
 
     /// Set the exdates of the set.
     #[must_use]
-    pub fn set_exdates(mut self, exdates: Vec<Zoned>) -> Self {
+    pub fn set_exdates(mut self, exdates: Vec<ZonedDateTime>) -> Self {
         self.exdate = exdates;
         self
     }
@@ -237,19 +237,19 @@ impl RRuleSet {
 
     /// Returns the rdates of the set.
     #[must_use]
-    pub fn get_rdate(&self) -> &Vec<Zoned> {
+    pub fn get_rdate(&self) -> &Vec<ZonedDateTime> {
         &self.rdate
     }
 
     /// Returns the exdates of the set.
     #[must_use]
-    pub fn get_exdate(&self) -> &Vec<Zoned> {
+    pub fn get_exdate(&self) -> &Vec<ZonedDateTime> {
         &self.exdate
     }
 
     /// Returns the start datetime of the recurring event.
     #[must_use]
-    pub fn get_dt_start(&self) -> &Zoned {
+    pub fn get_dt_start(&self) -> &ZonedDateTime {
         &self.dt_start
     }
 
@@ -289,7 +289,7 @@ impl RRuleSet {
     /// This method does not enforce any validation limits and might lead to
     /// very long iteration times. Please read the `SECURITY.md` for more information.
     #[must_use]
-    pub fn all_unchecked(self) -> Vec<Zoned> {
+    pub fn all_unchecked(self) -> Vec<ZonedDateTime> {
         collect_with_error(self.into_iter(), &self.after, &self.before, true, None).dates
     }
 
@@ -367,7 +367,7 @@ impl FromStr for RRuleSet {
 impl RRuleSet {
     /// An RDATE or EXDATE list with its VALUE parameter: DATEs when DTSTART is a DATE and
     /// every value is a floating midnight, as a parsed DATE is; DATE-TIMEs otherwise.
-    fn ical_date_list(&self, dates: &[Zoned]) -> String {
+    fn ical_date_list(&self, dates: &[ZonedDateTime]) -> String {
         if dates.is_empty() {
             return String::new();
         }
@@ -386,7 +386,7 @@ impl RRuleSet {
     }
 }
 
-fn ical_date(dt: &Zoned) -> String {
+fn ical_date(dt: &ZonedDateTime) -> String {
     dt.date().strftime("%Y%m%d").to_string()
 }
 

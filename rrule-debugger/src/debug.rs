@@ -1,6 +1,6 @@
 #![allow(dead_code, unused_imports)]
 
-use rrule::{Frequency, RRule, RRuleSet, TimeZone, Weekday, Zoned};
+use rrule::{Frequency, RRule, RRuleSet, TimeZone, Weekday, ZonedDateTime};
 
 /// This function can be used to test anything and can be changes as you wish.
 pub fn run_debug_function() {
@@ -34,9 +34,9 @@ fn test_parsed_rrule() {
     crate::print_all_datetimes(&result.dates);
 }
 
-fn ymd_hms(year: i16, month: i8, day: i8, hour: i8, minute: i8, second: i8) -> Zoned {
+fn ymd_hms(year: i16, month: i8, day: i8, hour: i8, minute: i8, second: i8) -> ZonedDateTime {
     jiff::civil::date(year, month, day)
         .at(hour, minute, second, 0)
-        .to_zoned(TimeZone::UTC)
+        .to_zoned_datetime(TimeZone::UTC)
         .unwrap()
 }

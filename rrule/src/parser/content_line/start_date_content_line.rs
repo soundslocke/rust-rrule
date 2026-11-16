@@ -9,11 +9,11 @@ use crate::parser::{
     ParseError,
 };
 use jiff::tz::TimeZone;
-use jiff::Zoned;
+use jiff::ZonedDateTime;
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct StartDateContentLine {
-    pub datetime: Zoned,
+    pub datetime: ZonedDateTime,
     pub timezone: Option<TimeZone>,
     pub value: &'static str,
 }

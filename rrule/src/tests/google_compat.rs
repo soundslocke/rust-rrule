@@ -59,7 +59,7 @@ fn dtstart_always_occurs_does_not_repeat_an_on_rule_dtstart() {
     );
 }
 
-fn yearly_pinned(rule: &str) -> Vec<jiff::Zoned> {
+fn yearly_pinned(rule: &str) -> Vec<jiff::ZonedDateTime> {
     rule.parse::<RRuleSet>()
         .unwrap()
         .yearly_bymonthday_uses_dtstart_month(true)
@@ -175,7 +175,7 @@ fn google_compat_turns_on_both_readings() {
 // RFC 5545 forbids BYHOUR, BYMINUTE and BYSECOND with a DATE DTSTART; Google ignores them.
 const DATE_START_BYHOUR: &str = "DTSTART;VALUE=DATE:20270501\nRRULE:FREQ=DAILY;BYHOUR=9;COUNT=2";
 
-fn hours(dates: &[jiff::Zoned]) -> Vec<(jiff::civil::Date, i8)> {
+fn hours(dates: &[jiff::ZonedDateTime]) -> Vec<(jiff::civil::Date, i8)> {
     dates.iter().map(|z| (z.date(), z.hour())).collect()
 }
 

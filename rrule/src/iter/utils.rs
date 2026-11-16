@@ -2,7 +2,7 @@ use std::ops;
 
 use jiff::civil::{Date, Time};
 use jiff::tz::TimeZone;
-use jiff::Zoned;
+use jiff::ZonedDateTime;
 
 /// The date `ordinal` days after 1970-01-01, or `None` outside jiff's date range.
 ///
@@ -96,8 +96,8 @@ where
 /// Places `time` on `date` in `tz`, resolving a time the clock skips (a DST gap)
 /// by the offset before the gap and a time it repeats (a fold) by the earlier
 /// occurrence, as RFC 5545 §3.3.5 requires.
-pub(crate) fn add_time_to_date(tz: &TimeZone, date: Date, time: Time) -> Option<Zoned> {
-    tz.to_zoned(date.to_datetime(time)).ok()
+pub(crate) fn add_time_to_date(tz: &TimeZone, date: Date, time: Time) -> Option<ZonedDateTime> {
+    tz.to_zoned_datetime(date.to_datetime(time)).ok()
 }
 #[cfg(test)]
 mod test {

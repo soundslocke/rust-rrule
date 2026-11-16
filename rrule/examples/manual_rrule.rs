@@ -10,7 +10,7 @@ fn main() {
     // Build an RRuleSet that starts the first day in 2020 at 9:00AM and occurs daily 5 times
     let start_date = date(2020, 1, 1)
         .at(9, 0, 0, 0)
-        .to_zoned(TimeZone::UTC)
+        .to_zoned_datetime(TimeZone::UTC)
         .unwrap();
     let rrule_set = RRule::default()
         .count(5)

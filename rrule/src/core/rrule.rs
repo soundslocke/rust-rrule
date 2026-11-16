@@ -12,7 +12,7 @@ use crate::validator::validate_rrule;
 use crate::validator::ValidationError;
 use crate::{RRuleError, RRuleSet, Unvalidated, Validated};
 use jiff::civil::Weekday;
-use jiff::Zoned;
+use jiff::ZonedDateTime;
 #[cfg(feature = "serde")]
 use serde_with::{serde_as, DeserializeFromStr, SerializeDisplay};
 use std::cmp::Ordering;
@@ -236,7 +236,7 @@ pub struct RRule<Stage = Validated> {
     /// The end date after which new events will no longer be generated.
     /// If the `DateTime` is equal to an instance of the event, it will be the last event.
     #[cfg_attr(feature = "serde", serde_as(as = "DisplayFromStr"))]
-    pub(crate) until: Option<Zoned>,
+    pub(crate) until: Option<ZonedDateTime>,
     /// The start day of the week.
     /// This will affect recurrences based on weekly periods.
     pub(crate) week_start: Weekday,
@@ -343,7 +343,7 @@ impl RRule<Unvalidated> {
     /// If given, this must be a datetime instance specifying the
     /// upper-bound limit of the recurrence.
     #[must_use]
-    pub fn until(mut self, until: Zoned) -> Self {
+    pub fn until(mut self, until: ZonedDateTime) -> Self {
         self.until = Some(until);
         self
     }
@@ -443,7 +443,7 @@ impl RRule<Unvalidated> {
     }
 
     /// Fills in some additional fields in order to make iter work correctly.
-    pub(crate) fn finalize_parsed_rrule(mut self, dt_start: &Zoned) -> Self {
+    pub(crate) fn finalize_parsed_rrule(mut self, dt_start: &ZonedDateTime) -> Self {
         // TEMP: move negative months to another list
         let mut by_month_day = vec![];
         let mut by_n_month_day = self.by_n_month_day;
@@ -549,7 +549,7 @@ impl RRule<Unvalidated> {
     /// # Errors
     ///
     /// If the properties aren't valid, it will return [`RRuleError`].
-    pub fn validate(self, dt_start: Zoned) -> Result<RRule<Validated>, RRuleError> {
+    pub fn validate(self, dt_start: ZonedDateTime) -> Result<RRule<Validated>, RRuleError> {
         let rrule = self.finalize_parsed_rrule(&dt_start);
 
         // Validate required checks (defined by RFC 5545)
@@ -604,7 +604,7 @@ impl RRule<Unvalidated> {
     /// # Errors
     ///
     /// Returns [`RRuleError::ValidationError`] in case the rrule is invalid.
-    pub fn build(self, dt_start: Zoned) -> Result<RRuleSet, RRuleError> {
+    pub fn build(self, dt_start: ZonedDateTime) -> Result<RRuleSet, RRuleError> {
         let rrule = self.validate(dt_start.clone())?;
         let rrule_set = RRuleSet::new(dt_start).rrule(rrule);
         Ok(rrule_set)
@@ -612,7 +612,11 @@ impl RRule<Unvalidated> {
 }
 
 impl RRule {
-    pub(crate) fn iter_with_ctx(&self, dt_start: &Zoned, step_limit: Option<u32>) -> RRuleIter {
+    pub(crate) fn iter_with_ctx(
+        &self,
+        dt_start: &ZonedDateTime,
+        step_limit: Option<u32>,
+    ) -> RRuleIter {
         RRuleIter::new(self, dt_start, step_limit)
     }
 }
@@ -800,7 +804,7 @@ impl<S> RRule<S> {
 
     /// Get the until of the recurrence.
     #[must_use]
-    pub fn get_until(&self) -> Option<&Zoned> {
+    pub fn get_until(&self) -> Option<&ZonedDateTime> {
         self.until.as_ref()
     }
 

@@ -15,7 +15,7 @@ fn main() {
 
         let start = date(2020, 1, 1)
             .at(9, 0, 0, 0)
-            .to_zoned(TimeZone::UTC)
+            .to_zoned_datetime(TimeZone::UTC)
             .unwrap();
         // Build an rrule set that occurs weekly on Tuesday and Wednesday
         let rrule_set = RRule::default()

@@ -1,6 +1,6 @@
 #![allow(clippy::module_name_repetitions)]
 
-use rrule::{NWeekday, TimeZone, Weekday, Zoned};
+use rrule::{NWeekday, TimeZone, Weekday, ZonedDateTime};
 use std::convert::TryInto;
 
 // https://doc.rust-lang.org/std/mem/fn.size_of.html
@@ -59,7 +59,7 @@ pub fn take_vec_i32(input: &mut &[u8]) -> Vec<i32> {
 }
 
 /// Uses 8+4+8 = 20 bytes
-pub fn take_datetime(input: &mut &[u8]) -> Zoned {
+pub fn take_datetime(input: &mut &[u8]) -> ZonedDateTime {
     // Fold arbitrary input into jiff's supported instant range.
     let (min, max) = (
         jiff::Timestamp::MIN.as_second(),
@@ -69,7 +69,7 @@ pub fn take_datetime(input: &mut &[u8]) -> Zoned {
     let nanos = i32::try_from(take_data_u32(input) % 1_000_000_000).unwrap();
     jiff::Timestamp::new(seconds, nanos)
         .unwrap_or(jiff::Timestamp::UNIX_EPOCH)
-        .to_zoned(TimeZone::UTC)
+        .to_zoned_datetime(TimeZone::UTC)
 }
 
 /// Uses 1 byte
@@ -223,7 +223,7 @@ pub fn take_data_isize(input: &mut &[u8]) -> isize {
 
 /// Uses 1 byte + [`take_datetime`]: a DTSTART in one of a few zones, chosen to reach
 /// DST gaps and folds (including a 30-minute one) as well as UTC and floating time.
-pub fn take_zoned_start(input: &mut &[u8]) -> Zoned {
+pub fn take_zoned_start(input: &mut &[u8]) -> ZonedDateTime {
     let zone = match take_byte(input) % 7 {
         0 => TimeZone::UTC,
         1 => TimeZone::unknown(),

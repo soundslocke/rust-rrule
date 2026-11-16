@@ -90,9 +90,9 @@ You should read the [security docs](https://github.com/fmeringdal/rust-rrule/blo
 
 ## Limitation and limits
 
-Dates are [Jiff][jiff] `Zoned` values, whose years run -9999..=9999. A rule's
-DTSTART must be in years 0..=9999, the years RFC 5545's four-digit year can
-write. Iteration stops at the end of 9999, or at Jiff's last instant
+Dates are [Jiff][jiff] `ZonedDateTime` values, whose years run -9999..=9999.
+A rule's DTSTART must be in years 0..=9999, the years RFC 5545's four-digit
+year can write. Iteration stops at the end of 9999, or at Jiff's last instant
 (9999-12-30T22:00Z) where that comes first.
 
 Time zones come from the IANA database as Jiff finds it: the system copy where

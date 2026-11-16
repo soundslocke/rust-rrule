@@ -12,7 +12,7 @@ mod simple_logger;
 use clap::ArgAction;
 use clap::Parser;
 use log::LevelFilter;
-use rrule::Zoned;
+use rrule::ZonedDateTime;
 
 const CRASHES_PATH: &str = "rrule-afl-fuzz/out/default/crashes/";
 
@@ -126,8 +126,8 @@ fn read_all_crash_file() -> Vec<Vec<u8>> {
     list
 }
 
-pub fn print_all_datetimes(list: &[Zoned]) {
-    let formatter = |dt: &Zoned| -> String { format!("    \"{dt}\",\n") };
+pub fn print_all_datetimes(list: &[ZonedDateTime]) {
+    let formatter = |dt: &ZonedDateTime| -> String { format!("    \"{dt}\",\n") };
     println!("[\n{}]", list.iter().map(formatter).collect::<String>(),);
 }
 

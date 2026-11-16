@@ -1,11 +1,11 @@
 //! A performant rust implementation of recurrence rules as defined in the [iCalendar RFC](https://datatracker.ietf.org/doc/html/rfc5545).
 //!
 //! This crate provides [`RRuleSet`] for working with recurrence rules. It has a collection of `DTSTART`, `RRULE`s, `EXRULE`s, `RDATE`s and `EXDATE`s. Both the `RRULE` and `EXRULE`
-//! properties are represented by the [`RRule`] type and the `DTSTART`, `RDATE` and `EXDATE` properties are represented by the [`Zoned`].
+//! properties are represented by the [`RRule`] type and the `DTSTART`, `RDATE` and `EXDATE` properties are represented by the [`ZonedDateTime`].
 //!
 //! # Building `RRule` and `RRuleSet`
 //! [`RRuleSet`] and [`RRule`] both implements the [`std::str::FromStr`] trait so that it can be parsed and built from a string representation.
-//! [`RRuleSet`] can also be built by composing multiple [`RRule`]s for its `rrule` and `exrule` properties and [`Zoned`] for its
+//! [`RRuleSet`] can also be built by composing multiple [`RRule`]s for its `rrule` and `exrule` properties and [`ZonedDateTime`] for its
 //! `dt_start`, `exdate` and `rdate` properties. See the examples below.
 //!
 //! ```rust
@@ -26,7 +26,7 @@
 //!     RDATE:20120701T023000Z,20120702T023000Z\n\
 //!     EXDATE:20120601T023000Z".parse().unwrap();
 //!
-//! let start = date(2012, 2, 1).at(2, 30, 0, 0).to_zoned(TimeZone::UTC).unwrap();
+//! let start = date(2012, 2, 1).at(2, 30, 0, 0).to_zoned_datetime(TimeZone::UTC).unwrap();
 //! assert_eq!(*rrule_set.get_dt_start(), start);
 //! assert_eq!(rrule_set.get_rrule().len(), 1);
 //! assert_eq!(rrule_set.get_rdate().len(), 2);
@@ -72,8 +72,8 @@
 //! let rrule: RRuleSet = "DTSTART:20120201T093000Z\nRRULE:FREQ=DAILY;COUNT=3".parse().unwrap();
 //!
 //! // Between two dates
-//! let after = date(2012, 2, 1).at(10, 0, 0, 0).to_zoned(TimeZone::UTC).unwrap();
-//! let before = date(2012, 4, 1).at(9, 0, 0, 0).to_zoned(TimeZone::UTC).unwrap();
+//! let after = date(2012, 2, 1).at(10, 0, 0, 0).to_zoned_datetime(TimeZone::UTC).unwrap();
+//! let before = date(2012, 4, 1).at(9, 0, 0, 0).to_zoned_datetime(TimeZone::UTC).unwrap();
 //!
 //! let rrule = rrule.after(after).before(before);
 //! let result = rrule.all(100);
@@ -90,7 +90,7 @@
 //! Note: All the generated recurrence will be in the same time zone as the `dt_start` property.
 //!
 //! # Time zones
-//! Dates are [`jiff::Zoned`] values. A local time that a zone skips (a DST gap)
+//! Dates are [`jiff::ZonedDateTime`] values. A local time that a zone skips (a DST gap)
 //! is moved forward by the length of the gap, and a local time it repeats (a
 //! fold) resolves to its first occurrence, as RFC 5545 §3.3.5 specifies. A
 //! floating DATE or DATE-TIME (no `TZID`, no `Z`) is placed in
@@ -118,4 +118,4 @@ pub use error::{ParseError, RRuleError, ValidationError};
 pub use iter::RRuleSetIter;
 pub use jiff::civil::Weekday;
 pub use jiff::tz::TimeZone;
-pub use jiff::Zoned;
+pub use jiff::ZonedDateTime;

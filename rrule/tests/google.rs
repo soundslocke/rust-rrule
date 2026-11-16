@@ -7,7 +7,7 @@
 //! included: a cancellation is an exception to the series, not part of the rule.
 //! The set is expanded with [`RRuleSet::google_compat`], the readings Google uses
 //! where RFC 5545 and python-dateutil differ.
-use rrule::{RRuleSet, TimeZone, Zoned};
+use rrule::{RRuleSet, TimeZone, ZonedDateTime};
 use serde_json::Value;
 
 /// Google's expansion limit for a single series.
@@ -34,7 +34,7 @@ fn slot(v: &Value) -> Option<String> {
     Some(ts.to_string())
 }
 
-fn crate_slot(z: &Zoned, all_day: bool) -> String {
+fn crate_slot(z: &ZonedDateTime, all_day: bool) -> String {
     if all_day {
         z.date().to_string()
     } else {
@@ -60,7 +60,7 @@ fn expand(series: &Value) -> Result<Vec<String>, String> {
         // An archived start carries an offset; express it as wall-clock time in its zone.
         let local = match raw.parse::<jiff::Timestamp>() {
             Ok(ts) => ts
-                .to_zoned(TimeZone::get(tz).map_err(|e| e.to_string())?)
+                .to_zoned_datetime(TimeZone::get(tz).map_err(|e| e.to_string())?)
                 .strftime("%Y%m%dT%H%M%S")
                 .to_string(),
             Err(_) => raw.replace(['-', ':'], ""),
@@ -95,7 +95,7 @@ fn expand(series: &Value) -> Result<Vec<String>, String> {
         }
         if all_day
             && z.date()
-                .to_zoned(TimeZone::UTC)
+                .to_zoned_datetime(TimeZone::UTC)
                 .map_or(true, |d| d.timestamp() >= time_max)
         {
             break;

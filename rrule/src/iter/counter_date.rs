@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use jiff::civil::{Date, Weekday};
-use jiff::Zoned;
+use jiff::ZonedDateTime;
 
 use crate::core::WeekdayExt;
 use crate::{Frequency, RRule, RRuleError};
@@ -309,8 +309,8 @@ impl DateTimeIter {
     }
 }
 
-impl From<&Zoned> for DateTimeIter {
-    fn from(dt: &Zoned) -> Self {
+impl From<&ZonedDateTime> for DateTimeIter {
+    fn from(dt: &ZonedDateTime) -> Self {
         Self {
             year: i32::from(dt.year()),
             month: u32::try_from(dt.month()).expect("1-12 fits in u32"),

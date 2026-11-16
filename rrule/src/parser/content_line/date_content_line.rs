@@ -6,7 +6,7 @@ use crate::parser::{
     datetime::{datestring_to_date, parse_timezone},
     ParseError,
 };
-use jiff::Zoned;
+use jiff::ZonedDateTime;
 
 use super::{content_line_parts::ContentLineCaptures, parameters::parse_parameters};
 
@@ -29,7 +29,7 @@ impl FromStr for DateParameter {
     }
 }
 
-impl TryFrom<ContentLineCaptures<'_>> for Vec<Zoned> {
+impl TryFrom<ContentLineCaptures<'_>> for Vec<ZonedDateTime> {
     type Error = ParseError;
 
     fn try_from(value: ContentLineCaptures) -> Result<Self, Self::Error> {

@@ -6,7 +6,7 @@ use crate::validator::YEAR_RANGE;
 use crate::{Frequency, RRule};
 use jiff::civil::{Date, Time};
 use jiff::tz::TimeZone;
-use jiff::Zoned;
+use jiff::{Timestamp, ZonedDateTime};
 use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
@@ -15,9 +15,9 @@ pub(crate) struct RRuleIter {
     pub(crate) counter_date: DateTimeIter,
     pub(crate) ii: IterInfo,
     pub(crate) timeset: Vec<Time>,
-    pub(crate) dt_start: Zoned,
+    pub(crate) dt_start: ZonedDateTime,
     /// Buffer of datetimes is not yet yielded
-    pub(crate) buffer: VecDeque<Zoned>,
+    pub(crate) buffer: VecDeque<ZonedDateTime>,
     /// Indicate of iterator should not return more items.
     /// Once set `true` is will always return `None`.
     pub(crate) finished: bool,
@@ -31,7 +31,7 @@ pub(crate) struct RRuleIter {
 }
 
 impl RRuleIter {
-    pub(crate) fn new(rrule: &RRule, dt_start: &Zoned, step_limit: Option<u32>) -> Self {
+    pub(crate) fn new(rrule: &RRule, dt_start: &ZonedDateTime, step_limit: Option<u32>) -> Self {
         // A rule may be validated against one DTSTART and iterated from another.
         // Outside the year range the year tables cannot be built, so there is
         // nothing to generate; build them for a stand-in date and finish at once.
@@ -39,7 +39,10 @@ impl RRuleIter {
         let ii = if in_range {
             IterInfo::new(rrule, dt_start)
         } else {
-            IterInfo::new(rrule, &jiff::Timestamp::UNIX_EPOCH.to_zoned(TimeZone::UTC))
+            IterInfo::new(
+                rrule,
+                &Timestamp::UNIX_EPOCH.to_zoned_datetime(TimeZone::UTC),
+            )
         };
 
         let hour = get_hour(dt_start);
@@ -64,11 +67,11 @@ impl RRuleIter {
     /// Attempts to add a date to the result. Returns `true` if we should
     /// terminate the iteration.
     fn try_add_datetime(
-        dt: Zoned,
+        dt: ZonedDateTime,
         rrule: &RRule,
         count: &mut Option<u32>,
-        buffer: &mut VecDeque<Zoned>,
-        dt_start: &Zoned,
+        buffer: &mut VecDeque<ZonedDateTime>,
+        dt_start: &ZonedDateTime,
     ) -> bool {
         if matches!(&rrule.until, Some(until) if dt > *until) {
             // We can break because `pos_list` is sorted and
@@ -253,7 +256,7 @@ impl RRuleIter {
 }
 
 impl Iterator for RRuleIter {
-    type Item = Zoned;
+    type Item = ZonedDateTime;
 
     fn next(&mut self) -> Option<Self::Item> {
         if !self.buffer.is_empty() {

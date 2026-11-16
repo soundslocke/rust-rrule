@@ -143,7 +143,7 @@ fn iterating_near_the_ends_of_the_supported_range_does_not_panic() {
         let rule = rule.validate(validated_at.clone()).unwrap();
         for start in [jiff::Timestamp::MAX, jiff::Timestamp::MIN] {
             // The rule was validated against another DTSTART, which the API allows.
-            let set = RRuleSet::new(start.to_zoned(TimeZone::UTC)).rrule(rule.clone());
+            let set = RRuleSet::new(start.to_zoned_datetime(TimeZone::UTC)).rrule(rule.clone());
             let _ = set.all(10);
         }
     }
@@ -215,7 +215,7 @@ fn dtstart_in_year_0_is_accepted_and_written_back() {
 #[test]
 fn dtstart_before_year_0_is_rejected() {
     let start = jiff::civil::date(-1, 12, 31)
-        .to_zoned(jiff::tz::TimeZone::UTC)
+        .to_zoned_datetime(jiff::tz::TimeZone::UTC)
         .unwrap();
     assert!(RRule::new(Frequency::Yearly).count(2).build(start).is_err());
 }

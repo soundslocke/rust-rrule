@@ -3,7 +3,7 @@ use std::ops::RangeInclusive;
 use crate::core::{is_floating, is_utc};
 use crate::{Frequency, NWeekday, RRule, Unvalidated};
 use jiff::tz::TimeZone;
-use jiff::Zoned;
+use jiff::ZonedDateTime;
 
 use super::ValidationError;
 
@@ -16,7 +16,8 @@ pub(crate) static MONTH_RANGE: RangeInclusive<u8> = 1..=12;
 /// represent an instant (after 9999-12-30T22:00Z).
 pub(crate) static YEAR_RANGE: RangeInclusive<i32> = 0..=9_999;
 
-type Validator = &'static dyn Fn(&RRule<Unvalidated>, &Zoned) -> Result<(), ValidationError>;
+type Validator =
+    &'static dyn Fn(&RRule<Unvalidated>, &ZonedDateTime) -> Result<(), ValidationError>;
 
 const VALIDATION_PIPELINE: [Validator; 12] = [
     &validate_dt_start,
@@ -41,7 +42,7 @@ const VALIDATION_PIPELINE: [Validator; 12] = [
 /// Validation will always be enforced and can not be disabled using feature flags.
 pub(crate) fn validate_rrule_forced(
     rrule: &RRule<Unvalidated>,
-    dt_start: &Zoned,
+    dt_start: &ZonedDateTime,
 ) -> Result<(), ValidationError> {
     VALIDATION_PIPELINE
         .into_iter()
@@ -50,7 +51,10 @@ pub(crate) fn validate_rrule_forced(
 
 // DTSTART:
 // - The year is within the range the iterators can build year tables for.
-fn validate_dt_start(_rrule: &RRule<Unvalidated>, dt_start: &Zoned) -> Result<(), ValidationError> {
+fn validate_dt_start(
+    _rrule: &RRule<Unvalidated>,
+    dt_start: &ZonedDateTime,
+) -> Result<(), ValidationError> {
     let year = i32::from(dt_start.year());
     if YEAR_RANGE.contains(&year) {
         Ok(())
@@ -67,7 +71,10 @@ fn validate_dt_start(_rrule: &RRule<Unvalidated>, dt_start: &Zoned) -> Result<()
 // Until:
 // - Timezones are correctly synced as specified in the RFC
 // - Value should be later than `dt_start`.
-fn validate_until(rrule: &RRule<Unvalidated>, dt_start: &Zoned) -> Result<(), ValidationError> {
+fn validate_until(
+    rrule: &RRule<Unvalidated>,
+    dt_start: &ZonedDateTime,
+) -> Result<(), ValidationError> {
     match &rrule.until {
         Some(until) => {
             let until_tz = until.time_zone();
@@ -113,7 +120,7 @@ fn tz_name(tz: &TimeZone) -> String {
 // - Can be a value from -366 to -1 and 1 to 366 depending on `freq`
 fn validate_by_set_pos(
     rrule: &RRule<Unvalidated>,
-    _dt_start: &Zoned,
+    _dt_start: &ZonedDateTime,
 ) -> Result<(), ValidationError> {
     validate_not_equal_for_vec(&0, &rrule.by_set_pos, "BYSETPOS")?;
     let range = match rrule.freq {
@@ -151,7 +158,10 @@ fn validate_by_set_pos(
 
 // By_month:
 // - Can be a value from 1 to 12.
-fn validate_by_month(rrule: &RRule<Unvalidated>, _dt_start: &Zoned) -> Result<(), ValidationError> {
+fn validate_by_month(
+    rrule: &RRule<Unvalidated>,
+    _dt_start: &ZonedDateTime,
+) -> Result<(), ValidationError> {
     validate_range_for_vec(&MONTH_RANGE, &rrule.by_month, "BYMONTH")
 }
 
@@ -159,7 +169,7 @@ fn validate_by_month(rrule: &RRule<Unvalidated>, _dt_start: &Zoned) -> Result<()
 // - Can be a value from -31 to -1 and 1 to 31.
 fn validate_by_month_day(
     rrule: &RRule<Unvalidated>,
-    _dt_start: &Zoned,
+    _dt_start: &ZonedDateTime,
 ) -> Result<(), ValidationError> {
     validate_not_equal_for_vec(&0, &rrule.by_month_day, "BYMONTHDAY")?;
     validate_range_for_vec(&(-31..=31), &rrule.by_month_day, "BYMONTHDAY")?;
@@ -181,7 +191,7 @@ fn validate_by_month_day(
 // - Can be a value from -366 to -1 and 1 to 366.
 fn validate_by_year_day(
     rrule: &RRule<Unvalidated>,
-    _dt_start: &Zoned,
+    _dt_start: &ZonedDateTime,
 ) -> Result<(), ValidationError> {
     validate_not_equal_for_vec(&0, &rrule.by_year_day, "BYYEARDAY")?;
     validate_range_for_vec(&(-366..=366), &rrule.by_year_day, "BYYEARDAY")?;
@@ -205,7 +215,7 @@ fn validate_by_year_day(
 // - Can be a value from -53 to -1 and 1 to 53.
 fn validate_by_week_number(
     rrule: &RRule<Unvalidated>,
-    _dt_start: &Zoned,
+    _dt_start: &ZonedDateTime,
 ) -> Result<(), ValidationError> {
     validate_not_equal_for_vec(&0, &rrule.by_week_no, "BYWEEKNO")?;
     validate_range_for_vec(&(-53..=53), &rrule.by_week_no, "BYWEEKNO")?;
@@ -228,7 +238,7 @@ fn validate_by_week_number(
 //   The Range depends on frequency and can only happen weekly, so `/7` from normal count.
 fn validate_by_weekday(
     rrule: &RRule<Unvalidated>,
-    _dt_start: &Zoned,
+    _dt_start: &ZonedDateTime,
 ) -> Result<(), ValidationError> {
     let range = match rrule.freq {
         Frequency::Yearly | Frequency::Daily => (-366 / 7)..=(366 / 7 + 1), // TODO is the daily range correct?
@@ -256,7 +266,10 @@ fn validate_by_weekday(
 
 // By_hour:
 // - Can be a value from 0 to 23.
-fn validate_by_hour(rrule: &RRule<Unvalidated>, _dt_start: &Zoned) -> Result<(), ValidationError> {
+fn validate_by_hour(
+    rrule: &RRule<Unvalidated>,
+    _dt_start: &ZonedDateTime,
+) -> Result<(), ValidationError> {
     validate_range_for_vec(&(0..=23), &rrule.by_hour, "BYHOUR")
 }
 
@@ -264,7 +277,7 @@ fn validate_by_hour(rrule: &RRule<Unvalidated>, _dt_start: &Zoned) -> Result<(),
 // - Can be a value from 0 to 59.
 fn validate_by_minute(
     rrule: &RRule<Unvalidated>,
-    _dt_start: &Zoned,
+    _dt_start: &ZonedDateTime,
 ) -> Result<(), ValidationError> {
     validate_range_for_vec(&(0..=59), &rrule.by_minute, "BYMINUTE")
 }
@@ -273,14 +286,14 @@ fn validate_by_minute(
 // - Can be a value from 0 to 59.
 fn validate_by_second(
     rrule: &RRule<Unvalidated>,
-    _dt_start: &Zoned,
+    _dt_start: &ZonedDateTime,
 ) -> Result<(), ValidationError> {
     validate_range_for_vec(&(0..=59), &rrule.by_second, "BYSECOND")
 }
 
 fn validate_by_easter(
     rrule: &RRule<Unvalidated>,
-    _dt_start: &Zoned,
+    _dt_start: &ZonedDateTime,
 ) -> Result<(), ValidationError> {
     #[cfg(feature = "by-easter")]
     {
@@ -606,7 +619,7 @@ mod tests {
 
     #[test]
     fn allows_until_with_compatible_timezone() {
-        fn t(start_tz: Tz, until_tz: Tz) -> (Zoned, Zoned) {
+        fn t(start_tz: Tz, until_tz: Tz) -> (ZonedDateTime, ZonedDateTime) {
             (
                 start_tz.with_ymd_and_hms(2020, 1, 1, 0, 0, 0).unwrap(),
                 until_tz.with_ymd_and_hms(2020, 1, 1, 0, 0, 0).unwrap(),
@@ -627,7 +640,7 @@ mod tests {
 
     #[test]
     fn rejects_until_with_incompatible_timezone() {
-        fn t(start_tz: Tz, until_tz: Tz) -> (Zoned, Zoned) {
+        fn t(start_tz: Tz, until_tz: Tz) -> (ZonedDateTime, ZonedDateTime) {
             (
                 start_tz.with_ymd_and_hms(2020, 1, 1, 0, 0, 0).unwrap(),
                 until_tz.with_ymd_and_hms(2020, 1, 1, 0, 0, 0).unwrap(),

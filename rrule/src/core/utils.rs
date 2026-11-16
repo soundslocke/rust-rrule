@@ -1,6 +1,6 @@
 use crate::iter::rrule_iter::WasLimited;
 use crate::RRuleResult;
-use jiff::Zoned;
+use jiff::ZonedDateTime;
 use std::ops::{
     Bound::{Excluded, Unbounded},
     RangeBounds,
@@ -12,13 +12,13 @@ use std::ops::{
 /// otherwise the second value of the return tuple will be `None`.
 pub(super) fn collect_with_error<T>(
     mut iterator: T,
-    start: &Option<Zoned>,
-    end: &Option<Zoned>,
+    start: &Option<ZonedDateTime>,
+    end: &Option<ZonedDateTime>,
     inclusive: bool,
     limit: Option<u16>,
 ) -> RRuleResult
 where
-    T: Iterator<Item = Zoned> + WasLimited,
+    T: Iterator<Item = ZonedDateTime> + WasLimited,
 {
     let mut list = vec![];
     let mut was_limited = false;
@@ -49,7 +49,7 @@ where
 }
 
 /// Checks if `date` is after `end`.
-fn has_reached_the_end(date: &Zoned, end: &Option<Zoned>, inclusive: bool) -> bool {
+fn has_reached_the_end(date: &ZonedDateTime, end: &Option<ZonedDateTime>, inclusive: bool) -> bool {
     if inclusive {
         match end {
             Some(end) => !(..=end).contains(&date),
@@ -65,9 +65,9 @@ fn has_reached_the_end(date: &Zoned, end: &Option<Zoned>, inclusive: bool) -> bo
 
 /// Helper function to determine if a date is within a given range.
 pub(super) fn is_in_range(
-    date: &Zoned,
-    start: &Option<Zoned>,
-    end: &Option<Zoned>,
+    date: &ZonedDateTime,
+    start: &Option<ZonedDateTime>,
+    end: &Option<ZonedDateTime>,
     inclusive: bool,
 ) -> bool {
     // Should it include or not include the start and/or end date?

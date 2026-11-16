@@ -6,7 +6,7 @@ use crate::core::get_month;
 use crate::core::WeekdayExt;
 use crate::{Frequency, NWeekday, RRule};
 use jiff::civil::{Date, Time};
-use jiff::Zoned;
+use jiff::ZonedDateTime;
 
 #[derive(Debug, Clone)]
 pub(crate) struct IterInfo {
@@ -17,7 +17,7 @@ pub(crate) struct IterInfo {
 }
 
 impl IterInfo {
-    pub fn new(rrule: &RRule, dt_start: &Zoned) -> Self {
+    pub fn new(rrule: &RRule, dt_start: &ZonedDateTime) -> Self {
         let year = i32::from(dt_start.year());
         let month = get_month(dt_start);
 

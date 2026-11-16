@@ -1,5 +1,5 @@
 //! Runs libical's recurrence corpus (tests/data/libical_icalrecur_test.txt, MPL-2.0) against this crate.
-use rrule::{RRuleSet, Zoned};
+use rrule::{RRuleSet, ZonedDateTime};
 
 struct Case {
     line: usize,
@@ -49,7 +49,7 @@ fn parse(src: &str) -> Vec<Case> {
     out
 }
 
-fn fmt(dt: &Zoned, date_only: bool, utc: bool) -> String {
+fn fmt(dt: &ZonedDateTime, date_only: bool, utc: bool) -> String {
     if date_only {
         dt.strftime("%Y%m%d").to_string()
     } else if utc {

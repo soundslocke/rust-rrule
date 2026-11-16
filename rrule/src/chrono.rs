@@ -1,4 +1,4 @@
-//! Conversions between [`Zoned`] and chrono date-times, for callers still on chrono.
+//! Conversions between [`ZonedDateTime`] and chrono date-times, for callers still on chrono.
 //!
 //! The recurrence engine works in jiff; these functions only translate values
 //! at the boundary. Zones are matched by IANA name, so a conversion fails when
@@ -6,7 +6,7 @@
 
 use chrono::{DateTime, FixedOffset, Utc};
 use jiff::tz::TimeZone;
-use jiff::{Timestamp, Zoned};
+use jiff::{Timestamp, ZonedDateTime};
 
 /// Why a value could not be converted.
 #[derive(Debug, thiserror::Error, PartialEq, Eq)]
@@ -29,19 +29,19 @@ fn timestamp_of<Tz: chrono::TimeZone>(dt: &DateTime<Tz>) -> Result<Timestamp, Co
 }
 
 /// Converts a chrono-tz date-time, keeping its IANA zone.
-pub fn from_chrono_tz(dt: &DateTime<chrono_tz::Tz>) -> Result<Zoned, ConversionError> {
+pub fn from_chrono_tz(dt: &DateTime<chrono_tz::Tz>) -> Result<ZonedDateTime, ConversionError> {
     let name = dt.timezone().name();
     let tz = TimeZone::get(name).map_err(|_| ConversionError::UnknownZone(name.into()))?;
-    Ok(timestamp_of(dt)?.to_zoned(tz))
+    Ok(timestamp_of(dt)?.to_zoned_datetime(tz))
 }
 
 /// Converts a UTC date-time.
-pub fn from_utc(dt: &DateTime<Utc>) -> Result<Zoned, ConversionError> {
-    Ok(timestamp_of(dt)?.to_zoned(TimeZone::UTC))
+pub fn from_utc(dt: &DateTime<Utc>) -> Result<ZonedDateTime, ConversionError> {
+    Ok(timestamp_of(dt)?.to_zoned_datetime(TimeZone::UTC))
 }
 
 /// Converts `zdt` to chrono-tz, keeping its IANA zone.
-pub fn to_chrono_tz(zdt: &Zoned) -> Result<DateTime<chrono_tz::Tz>, ConversionError> {
+pub fn to_chrono_tz(zdt: &ZonedDateTime) -> Result<DateTime<chrono_tz::Tz>, ConversionError> {
     let name = zdt
         .time_zone()
         .iana_name()
@@ -53,7 +53,7 @@ pub fn to_chrono_tz(zdt: &Zoned) -> Result<DateTime<chrono_tz::Tz>, ConversionEr
 }
 
 /// Converts `zdt` to its instant with its UTC offset. Works for any zone, floating included.
-pub fn to_fixed_offset(zdt: &Zoned) -> Result<DateTime<FixedOffset>, ConversionError> {
+pub fn to_fixed_offset(zdt: &ZonedDateTime) -> Result<DateTime<FixedOffset>, ConversionError> {
     let offset = FixedOffset::east_opt(zdt.offset().seconds())
         .ok_or_else(|| ConversionError::OutOfRange(zdt.to_string()))?;
     let ts = zdt.timestamp();

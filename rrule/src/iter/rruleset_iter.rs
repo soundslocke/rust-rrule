@@ -1,4 +1,4 @@
-use jiff::Zoned;
+use jiff::ZonedDateTime;
 
 use super::rrule_iter::RRuleIter;
 use super::rrule_iter::WasLimited;
@@ -14,13 +14,13 @@ use std::{collections::HashMap, iter::Iterator};
 #[derive(Debug, Clone)]
 /// Iterator over all the dates in an [`RRuleSet`].
 pub struct RRuleSetIter {
-    queue: HashMap<usize, Zoned>,
+    queue: HashMap<usize, ZonedDateTime>,
     step_limit: Option<u32>,
     rrule_iters: Vec<RRuleIter>,
     exrules: Vec<RRuleIter>,
     exdates: BTreeSet<i64>,
     /// Sorted additional dates in descending order
-    rdates: Vec<Zoned>,
+    rdates: Vec<ZonedDateTime>,
     was_limited: bool,
     /// The instant last returned, so one produced twice is returned once (RFC 5545 §3.8.5.2).
     last: Option<jiff::Timestamp>,
@@ -28,11 +28,11 @@ pub struct RRuleSetIter {
 
 impl RRuleSetIter {
     fn generate_date(
-        dates: &mut Vec<Zoned>,
+        dates: &mut Vec<ZonedDateTime>,
         exrules: &mut [RRuleIter],
         exdates: &mut BTreeSet<i64>,
         step_limit: Option<u32>,
-    ) -> (Option<Zoned>, bool) {
+    ) -> (Option<ZonedDateTime>, bool) {
         if dates.is_empty() {
             return (None, false);
         }
@@ -66,7 +66,7 @@ impl RRuleSetIter {
         exrules: &mut [RRuleIter],
         exdates: &mut BTreeSet<i64>,
         step_limit: Option<u32>,
-    ) -> (Option<Zoned>, bool) {
+    ) -> (Option<ZonedDateTime>, bool) {
         let mut date = match rrule_iter.next() {
             Some(d) => d,
             None => return (None, false),
@@ -96,7 +96,7 @@ impl RRuleSetIter {
     }
 
     fn is_date_excluded(
-        date: &Zoned,
+        date: &ZonedDateTime,
         exrules: &mut [RRuleIter],
         exdates: &mut BTreeSet<i64>,
     ) -> bool {
@@ -114,7 +114,7 @@ impl RRuleSetIter {
 }
 
 impl Iterator for RRuleSetIter {
-    type Item = Zoned;
+    type Item = ZonedDateTime;
 
     fn next(&mut self) -> Option<Self::Item> {
         // Candidates arrive in ascending order, so a duplicate is always the previous one.
@@ -130,8 +130,8 @@ impl Iterator for RRuleSetIter {
 }
 
 impl RRuleSetIter {
-    fn next_candidate(&mut self) -> Option<Zoned> {
-        let mut next_date: Option<(usize, Zoned)> = None;
+    fn next_candidate(&mut self) -> Option<ZonedDateTime> {
+        let mut next_date: Option<(usize, ZonedDateTime)> = None;
 
         // If there already was an error, return the error again.
         if self.was_limited {
@@ -216,7 +216,7 @@ impl RRuleSetIter {
 }
 
 impl IntoIterator for &RRuleSet {
-    type Item = Zoned;
+    type Item = ZonedDateTime;
 
     type IntoIter = RRuleSetIter;
 

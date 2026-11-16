@@ -3,7 +3,7 @@
 
 use jiff::civil::DateTime;
 use jiff::tz::TimeZone;
-use jiff::Zoned;
+use jiff::ZonedDateTime;
 
 /// A named zone, `Copy` so tests can keep `const BERLIN: Tz = ...`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -44,17 +44,19 @@ impl Tz {
             i8::try_from(second).unwrap(),
             0,
         );
-        Single(
-            dt.ok()
-                .and_then(|dt| self.zone().to_ambiguous_zoned(dt).unambiguous().ok()),
-        )
+        Single(dt.ok().and_then(|dt| {
+            self.zone()
+                .to_ambiguous_zoned_datetime(dt)
+                .unambiguous()
+                .ok()
+        }))
     }
 }
 
-pub struct Single(Option<Zoned>);
+pub struct Single(Option<ZonedDateTime>);
 
 impl Single {
-    pub fn unwrap(self) -> Zoned {
+    pub fn unwrap(self) -> ZonedDateTime {
         self.0
             .expect("local time is valid and unambiguous in its zone")
     }
@@ -64,7 +66,7 @@ pub trait ToRfc3339 {
     fn to_rfc3339(&self) -> String;
 }
 
-impl ToRfc3339 for Zoned {
+impl ToRfc3339 for ZonedDateTime {
     fn to_rfc3339(&self) -> String {
         self.strftime("%Y-%m-%dT%H:%M:%S%:z").to_string()
     }

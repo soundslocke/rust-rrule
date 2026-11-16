@@ -3,7 +3,7 @@
 //! `corpus.rs` stays as it is.
 use jiff::civil::DateTime;
 use jiff::tz::{AmbiguousOffset, TimeZone};
-use rrule::{RRuleSet, Zoned};
+use rrule::{RRuleSet, ZonedDateTime};
 
 /// How an expected instance is printed (the corpus `INSTANCES-AS` key).
 #[derive(Clone, Copy, Debug)]
@@ -124,7 +124,7 @@ pub fn expand(q: &Query) -> Result<Expansion, String> {
     })
 }
 
-fn fmt(d: &Zoned, date_only: bool, f: Format) -> String {
+fn fmt(d: &ZonedDateTime, date_only: bool, f: Format) -> String {
     if date_only {
         return d.strftime("%Y%m%d").to_string();
     }
@@ -139,11 +139,11 @@ fn fmt(d: &Zoned, date_only: bool, f: Format) -> String {
 
 /// A corpus value (`YYYYMMDD`, floating `YYYYMMDDTHHMMSS`, or UTC `...Z`) as an instant.
 /// A repeated local time takes its earlier instant; a skipped one is an error.
-fn at(v: &str, zone: &TimeZone) -> Result<Zoned, String> {
+fn at(v: &str, zone: &TimeZone) -> Result<ZonedDateTime, String> {
     let bad = |e: jiff::Error| format!("bad value {v}: {e}");
     if let Some(u) = v.strip_suffix('Z') {
         let n = DateTime::strptime("%Y%m%dT%H%M%S", u).map_err(bad)?;
-        return n.to_zoned(TimeZone::UTC).map_err(bad);
+        return n.to_zoned_datetime(TimeZone::UTC).map_err(bad);
     }
     let n = if v.len() == 8 {
         jiff::civil::Date::strptime("%Y%m%d", v)
@@ -152,7 +152,7 @@ fn at(v: &str, zone: &TimeZone) -> Result<Zoned, String> {
     } else {
         DateTime::strptime("%Y%m%dT%H%M%S", v).map_err(bad)?
     };
-    let ambiguous = zone.to_ambiguous_zoned(n);
+    let ambiguous = zone.to_ambiguous_zoned_datetime(n);
     if let AmbiguousOffset::Gap { .. } = ambiguous.offset() {
         return Err(format!(
             "{v} does not exist in {}",

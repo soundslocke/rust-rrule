@@ -3,10 +3,17 @@
 
 use crate::tests::compat::ToRfc3339;
 use crate::{tests::compat::Tz, RRule, RRuleError, RRuleSet, Unvalidated};
-use jiff::Zoned;
+use jiff::ZonedDateTime;
 use std::fmt::Debug;
 
-pub fn ymd_hms(year: i32, month: u32, day: u32, hour: u32, minute: u32, second: u32) -> Zoned {
+pub fn ymd_hms(
+    year: i32,
+    month: u32,
+    day: u32,
+    hour: u32,
+    minute: u32,
+    second: u32,
+) -> ZonedDateTime {
     Tz::UTC
         .with_ymd_and_hms(year, month, day, hour, minute, second)
         .unwrap()
@@ -15,8 +22,8 @@ pub fn ymd_hms(year: i32, month: u32, day: u32, hour: u32, minute: u32, second: 
 pub fn test_recurring_rrule(
     rrule: RRule<Unvalidated>,
     limited: bool,
-    dt_start: Zoned,
-    expected_dates: &[Zoned],
+    dt_start: ZonedDateTime,
+    expected_dates: &[ZonedDateTime],
 ) {
     let rrule_set = rrule
         .build(dt_start)
@@ -46,7 +53,7 @@ pub fn test_recurring_rrule(
 }
 
 #[allow(clippy::needless_pass_by_value)]
-pub fn test_recurring_rrule_set(rrule_set: RRuleSet, expected_dates: &[Zoned]) {
+pub fn test_recurring_rrule_set(rrule_set: RRuleSet, expected_dates: &[ZonedDateTime]) {
     let res = rrule_set.all(u16::MAX).dates;
 
     println!("Actual: {:?}", res);
@@ -63,8 +70,8 @@ pub fn test_recurring_rrule_set(rrule_set: RRuleSet, expected_dates: &[Zoned]) {
 }
 
 /// Print and compare 2 lists of dates and panic it they are not the same.
-pub fn check_occurrences<S: AsRef<str> + Debug>(occurrences: &[Zoned], expected: &[S]) {
-    let formatter = |dt: &Zoned| -> String { format!("    \"{}\",\n", dt.to_rfc3339()) };
+pub fn check_occurrences<S: AsRef<str> + Debug>(occurrences: &[ZonedDateTime], expected: &[S]) {
+    let formatter = |dt: &ZonedDateTime| -> String { format!("    \"{}\",\n", dt.to_rfc3339()) };
     println!(
         "Given: [\n{}]\nExpected: {:#?}",
         occurrences.iter().map(formatter).collect::<String>(),
