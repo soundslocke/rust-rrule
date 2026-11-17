@@ -98,7 +98,6 @@
 //! occurrences keep their wall-clock time, and is written back without a `Z`.
 //!
 
-#![forbid(unsafe_code)]
 #![deny(clippy::all)]
 #![warn(missing_docs)]
 #![deny(rustdoc::broken_intra_doc_links)]

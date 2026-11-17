@@ -14,6 +14,21 @@ resolver = "3"
 # So `cargo test` and `cargo run` both work.
 default-members = ["rrule", "rrule-debugger"]
 
+[workspace.lints.rust]
+unsafe_code = "forbid"
+unused_qualifications = "warn"
+
+[workspace.lints.clippy]
+absolute_paths = "warn"
+missing_panics_doc = "warn"
+panic = "warn"
+panic_in_result_fn = "warn"
+panicking_unwrap = "warn"
+todo = "warn"
+unimplemented = "warn"
+unwrap_used = "warn"
+use_self = "warn"
+
 [profile.dev]
 # Always have overflow checks until crate is stable, see roadmap.
 overflow-checks = true
