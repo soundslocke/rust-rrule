@@ -1,6 +1,10 @@
 test:
 	@cargo test --all-features --all-targets
 
+# Needs `cargo install cargo-llvm-cov` once.
+coverage:
+	@cargo llvm-cov --workspace --exclude rrule-afl-fuzz --all-features --html
+
 check:
 	@cargo +nightly fmt --all
 	@cargo clippy --fix --allow-dirty --allow-staged --all-targets --all-features

@@ -3,7 +3,7 @@ name = "rrule"
 description = "A pure Rust implementation of recurrence rules as defined in the iCalendar RFC."
 version = "0.14.0"
 documentation = "https://docs.rs/rrule"
-repository = "https://github.com/fmeringdal/rust-rrule"
+repository = "https://github.com/soundslocke/rust-rrule"
 authors = ["Fredrik Meringdal", "Ralph Bisschops <ralph.bisschops.dev@gmail.com>"]
 readme = "../README.md"
 keywords = ["calendar", "rrule", "ical"]
@@ -11,6 +11,7 @@ categories = ["date-and-time"]
 license.workspace = true
 rust-version.workspace = true
 edition.workspace = true
+publish = false
 
 [dependencies]
 jiff = "1.0.0"
