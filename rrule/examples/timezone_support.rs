@@ -4,9 +4,9 @@
 //! in the Europe/Berlin timezone, and one EXDATE that is specified
 //! in UTC and collides with one of those recurrences.
 
+use jiff::ZonedDateTime;
 use jiff::civil::date;
 use jiff::tz::TimeZone;
-use jiff::ZonedDateTime;
 use rrule::{Frequency, RRule};
 
 fn main() {

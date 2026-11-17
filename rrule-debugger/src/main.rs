@@ -15,7 +15,7 @@ use crate::parser_rrule::from_crash_file as parse_crash_file;
 use crate::simple_logger::LOGGER;
 use clap::ArgAction;
 use clap::Parser;
-use log::{set_logger, set_max_level, LevelFilter};
+use log::{LevelFilter, set_logger, set_max_level};
 use rrule::ZonedDateTime;
 use std::fs::{read, read_dir};
 

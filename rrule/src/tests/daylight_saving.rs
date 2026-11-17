@@ -1,4 +1,4 @@
-use crate::{tests::common::check_occurrences, RRuleSet};
+use crate::{RRuleSet, tests::common::check_occurrences};
 
 #[test]
 fn daylight_savings_1() {

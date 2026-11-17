@@ -3,8 +3,8 @@ use std::{collections::HashMap, str::FromStr};
 use log::warn;
 
 use crate::parser::{
-    datetime::{datestring_to_date, parse_timezone},
     ParseError,
+    datetime::{datestring_to_date, parse_timezone},
 };
 use jiff::ZonedDateTime;
 

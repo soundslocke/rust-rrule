@@ -1,5 +1,5 @@
-use crate::iter::rrule_iter::WasLimited;
 use crate::RRuleResult;
+use crate::iter::rrule_iter::WasLimited;
 use jiff::ZonedDateTime;
 use std::ops::{
     Bound::{Excluded, Unbounded},

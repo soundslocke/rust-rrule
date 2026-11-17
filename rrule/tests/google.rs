@@ -9,7 +9,7 @@
 //! where RFC 5545 and python-dateutil differ.
 use jiff::Timestamp;
 use rrule::{RRuleSet, TimeZone, ZonedDateTime};
-use serde_json::{from_str, Value};
+use serde_json::{Value, from_str};
 use std::fs::{read_dir, read_to_string};
 use std::path::Path;
 

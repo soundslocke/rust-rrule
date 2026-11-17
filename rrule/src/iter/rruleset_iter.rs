@@ -3,9 +3,9 @@ use log::warn;
 
 use super::rrule_iter::RRuleIter;
 use super::rrule_iter::WasLimited;
-use crate::core::{get_hour, get_minute, get_month, get_second};
 use crate::RRuleError;
 use crate::RRuleSet;
+use crate::core::{get_hour, get_minute, get_month, get_second};
 use crate::{Frequency, RRule};
 use std::borrow::Cow;
 use std::collections::BTreeSet;

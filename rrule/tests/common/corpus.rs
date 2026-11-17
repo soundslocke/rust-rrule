@@ -1,8 +1,8 @@
 //! Parses the corpus format described in tests/data/README.md and checks each case
 //! through `adapter`. Knows nothing about the crate's types.
-use super::adapter::{expand, Expansion, Format, Query};
+use super::adapter::{Expansion, Format, Query, expand};
 use std::fs::read_to_string;
-use std::panic::{catch_unwind, set_hook, take_hook, AssertUnwindSafe};
+use std::panic::{AssertUnwindSafe, catch_unwind, set_hook, take_hook};
 
 #[derive(Default)]
 struct Case {

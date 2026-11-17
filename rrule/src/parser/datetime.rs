@@ -1,9 +1,9 @@
-use super::{regex::ParsedDateString, ParseError};
-use crate::core::floating;
+use super::{ParseError, regex::ParsedDateString};
 use crate::NWeekday;
+use crate::core::floating;
+use jiff::ZonedDateTime;
 use jiff::civil::{DateTime, Weekday};
 use jiff::tz::TimeZone;
-use jiff::ZonedDateTime;
 
 /// Looks up an IANA time zone name, as used in a `TZID` parameter.
 pub(crate) fn parse_timezone(tz: &str) -> Result<TimeZone, ParseError> {

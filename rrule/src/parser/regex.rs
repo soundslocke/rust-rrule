@@ -4,7 +4,7 @@ use std::{str::FromStr, sync::OnceLock};
 
 use regex::{Captures, Regex};
 
-use super::{content_line::PropertyName, ParseError};
+use super::{ParseError, content_line::PropertyName};
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct ParsedDateString {
@@ -102,7 +102,7 @@ pub(crate) fn get_property_name(val: &str) -> Result<Option<PropertyName>, Parse
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::{content_line::PropertyName, regex::get_property_name, ParseError};
+    use crate::parser::{ParseError, content_line::PropertyName, regex::get_property_name};
 
     use super::{ParsedDateString, ParsedDateStringFlags, ParsedDateStringTime};
 

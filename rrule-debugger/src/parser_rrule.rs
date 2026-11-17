@@ -1,8 +1,8 @@
 use crate::print_all_datetimes;
 use rrule::RRuleSet;
 use std::panic::catch_unwind;
-use std::str::from_utf8;
 use std::str::FromStr;
+use std::str::from_utf8;
 
 pub fn from_crash_file(id: u32, data: &[u8]) {
     println!("--------- Test file {id} -----------");

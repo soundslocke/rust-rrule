@@ -1,8 +1,8 @@
 //! This file contains examples from:
 //! <https://icalendar.org/iCalendar-RFC-5545/3-8-5-3-recurrence-rule.html>
 
-use crate::tests::common::check_occurrences;
 use crate::RRuleSet;
+use crate::tests::common::check_occurrences;
 
 // ------------------------------------------ Daily ---------------------------------------------
 

@@ -115,6 +115,6 @@ pub use crate::core::{Frequency, NWeekday, RRule, RRuleResult, RRuleSet};
 pub use crate::core::{Unvalidated, Validated};
 pub use error::{ParseError, RRuleError, ValidationError};
 pub use iter::RRuleSetIter;
+pub use jiff::ZonedDateTime;
 pub use jiff::civil::Weekday;
 pub use jiff::tz::TimeZone;
-pub use jiff::ZonedDateTime;

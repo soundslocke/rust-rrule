@@ -1,9 +1,9 @@
 //! The only code in the corpus runners that touches the `rrule` crate's API.
 //! Porting the crate to another date-time library means rewriting this file;
 //! `corpus.rs` stays as it is.
+use jiff::Error;
 use jiff::civil::{Date, DateTime, Time};
 use jiff::tz::{AmbiguousOffset, TimeZone};
-use jiff::Error;
 use rrule::{RRuleSet, ZonedDateTime};
 
 /// How an expected instance is printed (the corpus `INSTANCES-AS` key).

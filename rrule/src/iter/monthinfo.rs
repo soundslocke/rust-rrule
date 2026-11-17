@@ -180,13 +180,15 @@ mod tests {
 
         let neg_weekday_mask = MonthInfo::get_neg_weekday_mask(&year_info, 1, &rrule);
         assert_eq!(neg_weekday_mask.len(), year_info.year_len as usize);
-        assert!(neg_weekday_mask
-            .into_iter()
-            .enumerate()
-            .all(|(idx, val)| match idx {
-                1 | 351 => val == 1,
-                _ => val == 0,
-            }));
+        assert!(
+            neg_weekday_mask
+                .into_iter()
+                .enumerate()
+                .all(|(idx, val)| match idx {
+                    1 | 351 => val == 1,
+                    _ => val == 0,
+                })
+        );
     }
 
     #[test]
@@ -207,12 +209,14 @@ mod tests {
 
         let neg_weekday_mask = MonthInfo::get_neg_weekday_mask(&year_info, 1, &rrule);
         assert_eq!(neg_weekday_mask.len(), year_info.year_len as usize);
-        assert!(neg_weekday_mask
-            .into_iter()
-            .enumerate()
-            .all(|(idx, val)| match idx {
-                1 | 22 => val == 1,
-                _ => val == 0,
-            }));
+        assert!(
+            neg_weekday_mask
+                .into_iter()
+                .enumerate()
+                .all(|(idx, val)| match idx {
+                    1 | 22 => val == 1,
+                    _ => val == 0,
+                })
+        );
     }
 }

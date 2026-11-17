@@ -3,14 +3,14 @@ use std::{collections::HashMap, marker::PhantomData, str::FromStr};
 use jiff::civil::Weekday;
 
 use crate::{
+    Frequency, RRule, Unvalidated,
     parser::{
+        ParseError,
         content_line::parameters::parse_parameters,
         datetime::{datestring_to_date, parse_weekdays},
         str_to_weekday,
         utils::parse_str_to_vec,
-        ParseError,
     },
-    Frequency, RRule, Unvalidated,
 };
 
 use super::content_line_parts::ContentLineCaptures;

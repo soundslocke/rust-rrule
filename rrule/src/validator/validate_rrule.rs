@@ -2,8 +2,8 @@ use std::ops::RangeInclusive;
 
 use crate::core::{floating, is_floating, is_utc};
 use crate::{Frequency, NWeekday, RRule, Unvalidated};
-use jiff::tz::TimeZone;
 use jiff::ZonedDateTime;
+use jiff::tz::TimeZone;
 #[cfg(not(feature = "by-easter"))]
 use log::warn;
 

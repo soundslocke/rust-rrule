@@ -59,7 +59,9 @@ pub enum ValidationError {
         freq: Frequency,
     },
     /// `UNTIL` is earlier than `DTSTART`.
-    #[error("`UNTIL` is `{until}`, but `DTSTART` (`{dt_start}`) is later. That should not be happening.")]
+    #[error(
+        "`UNTIL` is `{until}`, but `DTSTART` (`{dt_start}`) is later. That should not be happening."
+    )]
     UntilBeforeStart {
         /// `UNTIL`, as RFC 3339.
         until: String,

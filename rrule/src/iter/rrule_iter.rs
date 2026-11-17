@@ -1,6 +1,6 @@
 use super::counter_date::DateTimeIter;
 use super::utils::add_time_to_date;
-use super::{build_pos_list, utils::date_from_ordinal, IterInfo};
+use super::{IterInfo, build_pos_list, utils::date_from_ordinal};
 use crate::core::{get_hour, get_minute, get_second};
 use crate::validator::YEAR_RANGE;
 use crate::{Frequency, RRule};

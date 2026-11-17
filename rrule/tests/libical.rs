@@ -143,9 +143,18 @@ fn libical_corpus() -> Result<(), String> {
         } else {
             fail += 1;
             let first = got.iter().zip(&expected).position(|(a, b)| a != b);
-            println!("FAIL line {} [{}] {}\n     DTSTART {} | expected {} got {} | first diff at {:?}: exp {:?} got {:?}",
-                c.line, c.comment, c.rrule, c.dtstart, expected.len(), got.len(), first,
-                first.map(|i| &expected[i]), first.map(|i| &got[i]));
+            println!(
+                "FAIL line {} [{}] {}\n     DTSTART {} | expected {} got {} | first diff at {:?}: exp {:?} got {:?}",
+                c.line,
+                c.comment,
+                c.rrule,
+                c.dtstart,
+                expected.len(),
+                got.len(),
+                first,
+                first.map(|i| &expected[i]),
+                first.map(|i| &got[i])
+            );
         }
     }
     println!(

@@ -1,6 +1,6 @@
+use jiff::ZonedDateTime;
 use jiff::civil::Weekday;
 use jiff::tz::TimeZone;
-use jiff::ZonedDateTime;
 
 /// The zone a floating DATE or DATE-TIME (no `TZID`, no `Z`) is placed in.
 ///

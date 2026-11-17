@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
-use jiff::civil::{Date, Weekday};
 use jiff::ZonedDateTime;
+use jiff::civil::{Date, Weekday};
 
 use crate::core::WeekdayExt;
 use crate::{Frequency, RRule, RRuleError};

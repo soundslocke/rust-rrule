@@ -1,7 +1,7 @@
-use crate::tests::common::check_occurrences;
 use crate::RRuleSet;
-use jiff::civil::{date, Date};
+use crate::tests::common::check_occurrences;
 use jiff::ZonedDateTime;
+use jiff::civil::{Date, date};
 
 // Wednesday 6 January 2027; the rule only generates Mondays.
 const OFF_RULE_DTSTART: &str = "DTSTART:20270106T090000Z\nRRULE:FREQ=WEEKLY;BYDAY=MO;COUNT=2";

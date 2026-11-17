@@ -1,4 +1,4 @@
-use crate::parser::{regex::get_property_name, ParseError};
+use crate::parser::{ParseError, regex::get_property_name};
 
 use super::PropertyName;
 

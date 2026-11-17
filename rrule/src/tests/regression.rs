@@ -1,8 +1,8 @@
 use crate::tests::common::{check_occurrences, ymd_hms};
 use crate::{Frequency, RRule, RRuleSet, Unvalidated, Weekday};
+use jiff::Timestamp;
 use jiff::civil::date;
 use jiff::tz::TimeZone;
-use jiff::Timestamp;
 use std::time::Instant;
 
 #[test]
@@ -193,9 +193,11 @@ fn until_ends_iteration_even_when_nothing_matches() {
 #[test]
 fn dtstart_past_the_last_representable_instant_is_a_parse_error() {
     for start in ["DTSTART;VALUE=DATE:99991231", "DTSTART:99991231T000000Z"] {
-        assert!(format!("{start}\nRRULE:FREQ=DAILY")
-            .parse::<RRuleSet>()
-            .is_err());
+        assert!(
+            format!("{start}\nRRULE:FREQ=DAILY")
+                .parse::<RRuleSet>()
+                .is_err()
+        );
     }
 }
 

@@ -2,9 +2,9 @@
 #![allow(dead_code, non_upper_case_globals)]
 
 use crate::core::floating;
+use jiff::ZonedDateTime;
 use jiff::civil::DateTime;
 use jiff::tz::TimeZone;
-use jiff::ZonedDateTime;
 
 /// A named zone, `Copy` so tests can keep `const BERLIN: Tz = ...`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

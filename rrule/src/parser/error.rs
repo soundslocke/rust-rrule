@@ -23,10 +23,14 @@ pub enum ParseError {
     #[error("`{0}` is not a valid frequency.")]
     InvalidFrequency(String),
     /// A `BYDAY` entry is not a weekday, optionally prefixed by an ordinal.
-    #[error("`{0}` is not a valid weekday. Valid values are `MO`, `TU`, `WE`, `TH`, `FR`, `SA` and `SU`.")]
+    #[error(
+        "`{0}` is not a valid weekday. Valid values are `MO`, `TU`, `WE`, `TH`, `FR`, `SA` and `SU`."
+    )]
     InvalidWeekday(String),
     /// `WKST` is not a weekday.
-    #[error("`{0}` is not a valid weekday start. Valid values are `MO`, `TU`, `WE`, `TH`, `FR`, `SA` and `SU`.")]
+    #[error(
+        "`{0}` is not a valid weekday start. Valid values are `MO`, `TU`, `WE`, `TH`, `FR`, `SA` and `SU`."
+    )]
     InvalidWeekdayStart(String),
     /// `BYEASTER` is not an integer that fits in an `i16`.
     #[error("`{0}` is not a valid BYEASTER value.")]
@@ -38,28 +42,44 @@ pub enum ParseError {
     #[error("`{0}` is not a valid COUNT value.")]
     InvalidCount(String),
     /// `BYHOUR` is not a comma-separated list of integers.
-    #[error("`{0}` is not a valid BYHOUR value. Expected a comma-separated list of values in range 0..=23, e.g. `1,3,4`")]
+    #[error(
+        "`{0}` is not a valid BYHOUR value. Expected a comma-separated list of values in range 0..=23, e.g. `1,3,4`"
+    )]
     InvalidByHour(String),
     /// `BYWEEKNO` is not a comma-separated list of integers.
-    #[error("`{0}` is not a valid BYWEEKNO value. Expected a comma-separated list of values in range -53..=53, e.g. `-1,30,53`")]
+    #[error(
+        "`{0}` is not a valid BYWEEKNO value. Expected a comma-separated list of values in range -53..=53, e.g. `-1,30,53`"
+    )]
     InvalidByWeekNo(String),
     /// `BYYEARDAY` is not a comma-separated list of integers.
-    #[error("`{0}` is not a valid BYYEARDAY value. Expected a comma-separated list of values in range -366..=366, e.g. `-100,`")]
+    #[error(
+        "`{0}` is not a valid BYYEARDAY value. Expected a comma-separated list of values in range -366..=366, e.g. `-100,`"
+    )]
     InvalidByYearDay(String),
     /// `BYMONTHDAY` is not a comma-separated list of integers.
-    #[error("`{0}` is not a valid BYMONTHDAY value. Expected a comma-separated list of values in range -31..=31, e.g. `-30,10`")]
+    #[error(
+        "`{0}` is not a valid BYMONTHDAY value. Expected a comma-separated list of values in range -31..=31, e.g. `-30,10`"
+    )]
     InvalidByMonthDay(String),
     /// `BYMONTH` is not a comma-separated list of integers.
-    #[error("`{0}` is not a valid BYMONTH value. Expected a comma-separated list of values in range 1..=12, e.g. `6,9,10`")]
+    #[error(
+        "`{0}` is not a valid BYMONTH value. Expected a comma-separated list of values in range 1..=12, e.g. `6,9,10`"
+    )]
     InvalidByMonth(String),
     /// `BYMINUTE` is not a comma-separated list of integers.
-    #[error("`{0}` is not a valid BYMINUTE value. Expected a comma-separated list of values in range 0..=59, e.g. `0,15,30,45`")]
+    #[error(
+        "`{0}` is not a valid BYMINUTE value. Expected a comma-separated list of values in range 0..=59, e.g. `0,15,30,45`"
+    )]
     InvalidByMinute(String),
     /// `BYSECOND` is not a comma-separated list of integers.
-    #[error("`{0}` is not a valid BYSECOND value. Expected a comma-separated list of values in range 0..=59, e.g. `0,15,30,45`")]
+    #[error(
+        "`{0}` is not a valid BYSECOND value. Expected a comma-separated list of values in range 0..=59, e.g. `0,15,30,45`"
+    )]
     InvalidBySecond(String),
     /// `BYSETPOS` is not a comma-separated list of integers.
-    #[error("`{0}` is not a valid BYSETPOS value. Expected a comma-separated list of integers, e.g. `-3,1`")]
+    #[error(
+        "`{0}` is not a valid BYSETPOS value. Expected a comma-separated list of integers, e.g. `-3,1`"
+    )]
     InvalidBySetPos(String),
     /// A rule is missing a part it requires, such as `FREQ`.
     #[error("The property `{0}` wasn't found, and it is required.")]
@@ -76,10 +96,14 @@ pub enum ParseError {
     #[error("Found duplicate property for `{0}`, properties and parameters need to be unique.")]
     DuplicateProperty(String),
     /// The input has no `DTSTART`.
-    #[error("Missing start date. There needs to be a unique start date which the iteration can start from.")]
+    #[error(
+        "Missing start date. There needs to be a unique start date which the iteration can start from."
+    )]
     MissingStartDate,
     /// The input has neither an `RRULE` nor an `RDATE`.
-    #[error("Missing date generation property. There needs to be at least one `RRULE` or `RDATE` to generate occurrences.")]
+    #[error(
+        "Missing date generation property. There needs to be at least one `RRULE` or `RDATE` to generate occurrences."
+    )]
     MissingDateGenerationRules,
     /// An `RRULE` or `EXRULE` line has parameters, which those properties do not take.
     #[error("Property parameters aren't supported for RRULE / EXRULE, found parameters: `{0}`")]
@@ -92,7 +116,9 @@ pub enum ParseError {
     UnrecognizedPropertyName(String),
     /// A parameter disagrees with the value it describes, such as `VALUE=DATE` on a
     /// date-time.
-    #[error("Property parameter `{parameter}` was set to have value `{parameter_value}`, but found `{found_value}` ")]
+    #[error(
+        "Property parameter `{parameter}` was set to have value `{parameter_value}`, but found `{found_value}` "
+    )]
     ParameterValueMismatch {
         /// The parameter's name, such as `VALUE`.
         parameter: String,

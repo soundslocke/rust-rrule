@@ -81,7 +81,7 @@ mod test {
     use jiff::civil::Weekday;
 
     use super::*;
-    use crate::{parser::content_line::ContentLine, tests::compat::Tz, Frequency, NWeekday, RRule};
+    use crate::{Frequency, NWeekday, RRule, parser::content_line::ContentLine, tests::compat::Tz};
 
     const UTC: Tz = Tz::UTC;
     const BERLIN: Tz = Tz::Europe__Berlin;
@@ -89,63 +89,88 @@ mod test {
     #[test]
     fn parses_valid_input_to_grammar() {
         let tests = [
-(
-    "DTSTART:19970902T090000Z\nRRULE:FREQ=YEARLY;COUNT=3\n", Grammar {
-    start: Some(StartDateContentLine { datetime: UTC.with_ymd_and_hms(1997, 9, 2,9, 0, 0).unwrap(), timezone: Some(UTC.zone()), value: "DATE-TIME" }),
-    content_lines: vec![
-        ContentLine::RRule(RRule {
-            freq: Frequency::Yearly,
-            count: Some(3),
-            ..Default::default()
-        })
-    ]
-}
-),
-("DTSTART:20120201T093000Z\nRRULE:FREQ=WEEKLY;INTERVAL=5;UNTIL=20130130T230000Z;BYDAY=MO,FR", Grammar {
-    start: Some(StartDateContentLine { datetime: UTC.with_ymd_and_hms(2012, 2, 1,9, 30, 0).unwrap(), timezone: Some(UTC.zone()), value: "DATE-TIME" }),
-    content_lines: vec![
-        ContentLine::RRule(RRule {
-            freq: Frequency::Weekly,
-            interval: 5,
-            until: Some(UTC.with_ymd_and_hms(2013, 1, 30,23, 0, 0).unwrap()),
-            by_weekday: vec![NWeekday::Every(Weekday::Monday), NWeekday::Every(Weekday::Friday)],
-            ..Default::default()
-        })
-    ]
-}),
-("DTSTART:20120201T120000Z\nRRULE:FREQ=DAILY;COUNT=5\nEXDATE;TZID=Europe/Berlin:20120202T130000,20120203T130000", Grammar {
-    start: Some(StartDateContentLine { datetime: UTC.with_ymd_and_hms(2012, 2, 1,12, 0, 0).unwrap(), timezone: Some(UTC.zone()), value: "DATE-TIME" }),
-    content_lines: vec![
-        ContentLine::RRule(RRule {
-            freq: Frequency::Daily,
-            count: Some(5),
-            ..Default::default()
-        }),
-        ContentLine::ExDate(vec![
-            BERLIN.with_ymd_and_hms(2012, 2, 2,13, 0, 0).unwrap(),
-            BERLIN.with_ymd_and_hms(2012, 2, 3,13, 0, 0).unwrap(),
-        ])
-    ]
-}),
-("DTSTART:20120201T120000Z\nRRULE:FREQ=DAILY;COUNT=5\nEXDATE;TZID=Europe/Berlin:20120202T130000,20120203T130000\nEXRULE:FREQ=WEEKLY;COUNT=10", Grammar {
-    start: Some(StartDateContentLine { datetime: UTC.with_ymd_and_hms(2012, 2, 1,12, 0, 0).unwrap(), timezone: Some(UTC.zone()), value: "DATE-TIME" }),
-    content_lines: vec![
-        ContentLine::RRule(RRule {
-            freq: Frequency::Daily,
-            count: Some(5),
-            ..Default::default()
-        }),
-        ContentLine::ExDate(vec![
-            BERLIN.with_ymd_and_hms(2012, 2, 2,13, 0, 0).unwrap(),
-            BERLIN.with_ymd_and_hms(2012, 2, 3,13, 0, 0).unwrap(),
-        ]),
-        ContentLine::ExRule(RRule {
-            freq: Frequency::Weekly,
-            count: Some(10),
-            ..Default::default()
-        }),
-    ]
-})
+            (
+                "DTSTART:19970902T090000Z\nRRULE:FREQ=YEARLY;COUNT=3\n",
+                Grammar {
+                    start: Some(StartDateContentLine {
+                        datetime: UTC.with_ymd_and_hms(1997, 9, 2, 9, 0, 0).unwrap(),
+                        timezone: Some(UTC.zone()),
+                        value: "DATE-TIME",
+                    }),
+                    content_lines: vec![ContentLine::RRule(RRule {
+                        freq: Frequency::Yearly,
+                        count: Some(3),
+                        ..Default::default()
+                    })],
+                },
+            ),
+            (
+                "DTSTART:20120201T093000Z\nRRULE:FREQ=WEEKLY;INTERVAL=5;UNTIL=20130130T230000Z;BYDAY=MO,FR",
+                Grammar {
+                    start: Some(StartDateContentLine {
+                        datetime: UTC.with_ymd_and_hms(2012, 2, 1, 9, 30, 0).unwrap(),
+                        timezone: Some(UTC.zone()),
+                        value: "DATE-TIME",
+                    }),
+                    content_lines: vec![ContentLine::RRule(RRule {
+                        freq: Frequency::Weekly,
+                        interval: 5,
+                        until: Some(UTC.with_ymd_and_hms(2013, 1, 30, 23, 0, 0).unwrap()),
+                        by_weekday: vec![
+                            NWeekday::Every(Weekday::Monday),
+                            NWeekday::Every(Weekday::Friday),
+                        ],
+                        ..Default::default()
+                    })],
+                },
+            ),
+            (
+                "DTSTART:20120201T120000Z\nRRULE:FREQ=DAILY;COUNT=5\nEXDATE;TZID=Europe/Berlin:20120202T130000,20120203T130000",
+                Grammar {
+                    start: Some(StartDateContentLine {
+                        datetime: UTC.with_ymd_and_hms(2012, 2, 1, 12, 0, 0).unwrap(),
+                        timezone: Some(UTC.zone()),
+                        value: "DATE-TIME",
+                    }),
+                    content_lines: vec![
+                        ContentLine::RRule(RRule {
+                            freq: Frequency::Daily,
+                            count: Some(5),
+                            ..Default::default()
+                        }),
+                        ContentLine::ExDate(vec![
+                            BERLIN.with_ymd_and_hms(2012, 2, 2, 13, 0, 0).unwrap(),
+                            BERLIN.with_ymd_and_hms(2012, 2, 3, 13, 0, 0).unwrap(),
+                        ]),
+                    ],
+                },
+            ),
+            (
+                "DTSTART:20120201T120000Z\nRRULE:FREQ=DAILY;COUNT=5\nEXDATE;TZID=Europe/Berlin:20120202T130000,20120203T130000\nEXRULE:FREQ=WEEKLY;COUNT=10",
+                Grammar {
+                    start: Some(StartDateContentLine {
+                        datetime: UTC.with_ymd_and_hms(2012, 2, 1, 12, 0, 0).unwrap(),
+                        timezone: Some(UTC.zone()),
+                        value: "DATE-TIME",
+                    }),
+                    content_lines: vec![
+                        ContentLine::RRule(RRule {
+                            freq: Frequency::Daily,
+                            count: Some(5),
+                            ..Default::default()
+                        }),
+                        ContentLine::ExDate(vec![
+                            BERLIN.with_ymd_and_hms(2012, 2, 2, 13, 0, 0).unwrap(),
+                            BERLIN.with_ymd_and_hms(2012, 2, 3, 13, 0, 0).unwrap(),
+                        ]),
+                        ContentLine::ExRule(RRule {
+                            freq: Frequency::Weekly,
+                            count: Some(10),
+                            ..Default::default()
+                        }),
+                    ],
+                },
+            ),
         ];
         for (input, expected_grammar) in tests {
             let grammar = Grammar::from_str(input);
@@ -156,10 +181,10 @@ mod test {
     #[test]
     fn rejects_input_without_date_generation() {
         let tests = [
-"DTSTART:19970902T090000Z",
-"DTSTART:20120201T093000Z\nEXRULE:FREQ=WEEKLY;INTERVAL=5;UNTIL=20130130T230000Z;BYDAY=MO,FR",
-"DTSTART:20120201T120000Z\nEXDATE;TZID=Europe/Berlin:20120202T130000,20120203T130000",
-"DTSTART:20120201T120000Z\nEXRULE:FREQ=DAILY;COUNT=5\nEXDATE;TZID=Europe/Berlin:20120202T130000,20120203T130000"
+            "DTSTART:19970902T090000Z",
+            "DTSTART:20120201T093000Z\nEXRULE:FREQ=WEEKLY;INTERVAL=5;UNTIL=20130130T230000Z;BYDAY=MO,FR",
+            "DTSTART:20120201T120000Z\nEXDATE;TZID=Europe/Berlin:20120202T130000,20120203T130000",
+            "DTSTART:20120201T120000Z\nEXRULE:FREQ=DAILY;COUNT=5\nEXDATE;TZID=Europe/Berlin:20120202T130000,20120203T130000",
         ];
         for input in tests {
             let res = Grammar::from_str(input);

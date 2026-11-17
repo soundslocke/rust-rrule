@@ -1,5 +1,5 @@
-use crate::tests::common::check_occurrences;
 use crate::RRuleSet;
+use crate::tests::common::check_occurrences;
 
 /// Monthly on the 31st of the month
 #[test]

@@ -1,8 +1,8 @@
 use std::ops::{Add, Rem};
 
+use jiff::ZonedDateTime;
 use jiff::civil::{Date, Time};
 use jiff::tz::TimeZone;
-use jiff::ZonedDateTime;
 
 /// The date `ordinal` days after 1970-01-01, or `None` outside jiff's date range.
 ///
@@ -48,11 +48,7 @@ pub(crate) fn is_leap_year(year: i32) -> bool {
 /// Returns number of days in year,
 /// So 365 or 366 depending on the year
 pub(crate) fn get_year_len(year: i32) -> u16 {
-    if is_leap_year(year) {
-        366
-    } else {
-        365
-    }
+    if is_leap_year(year) { 366 } else { 365 }
 }
 
 pub(crate) trait DifferentSigns {
@@ -86,11 +82,7 @@ where
 {
     let r = a % b;
     // If r and b differ in sign, add b to wrap the result to the correct sign.
-    if T::different_sign(r, b) {
-        r + b
-    } else {
-        r
-    }
+    if T::different_sign(r, b) { r + b } else { r }
 }
 
 /// Places `time` on `date` in `tz`, resolving a time the clock skips (a DST gap)
@@ -103,8 +95,8 @@ pub(crate) fn add_time_to_date(tz: &TimeZone, date: Date, time: Time) -> Option<
 mod test {
 
     use crate::tests::compat::Tz;
-    use jiff::civil::{date, time};
     use jiff::SignedDuration;
+    use jiff::civil::{date, time};
 
     use super::*;
 

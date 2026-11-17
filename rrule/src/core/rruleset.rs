@@ -3,12 +3,12 @@ use crate::core::{datetime_to_ical_format, datetime_to_ical_value, is_floating};
 use crate::iter::DEFAULT_ITERATION_LIMIT;
 use crate::parser::{ContentLine, Grammar};
 use crate::{ParseError, RRule, RRuleError};
-use jiff::civil::Time;
 use jiff::ZonedDateTime;
+use jiff::civil::Time;
 #[cfg(not(feature = "exrule"))]
 use log::warn;
 #[cfg(feature = "serde")]
-use serde_with::{serde_as, DeserializeFromStr, SerializeDisplay};
+use serde_with::{DeserializeFromStr, SerializeDisplay, serde_as};
 use std::fmt::{self, Display, Formatter};
 use std::str::FromStr;
 
@@ -457,10 +457,12 @@ mod tests {
         // Check rrule
         assert_eq!(
             rruleset.rrule,
-            vec![RRule::new(Frequency::Daily)
-                .count(3)
-                .validate(dt_start.clone())
-                .unwrap()]
+            vec![
+                RRule::new(Frequency::Daily)
+                    .count(3)
+                    .validate(dt_start.clone())
+                    .unwrap()
+            ]
         );
 
         // Check rdate
@@ -475,11 +477,13 @@ mod tests {
         // Check exrule
         assert_eq!(
             rruleset.exrule,
-            vec![RRule::new(Frequency::Yearly)
-                .count(8)
-                .by_month(&[6, 7])
-                .validate(dt_start)
-                .unwrap()]
+            vec![
+                RRule::new(Frequency::Yearly)
+                    .count(8)
+                    .by_month(&[6, 7])
+                    .validate(dt_start)
+                    .unwrap()
+            ]
         );
 
         // Check exdate
