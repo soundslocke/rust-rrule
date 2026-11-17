@@ -122,8 +122,8 @@ impl RRuleIter {
                     self.finished = true;
                     self.was_limited = true;
                     warn!(
-                        "Reached max loop counter (`{}`). \
-                    See 'validator limits' in docs for more info.",
+                        "Reached the iteration limit (`{}`). \
+                    Raise it with `RRuleSet::iteration_limit`.",
                         step_limit
                     );
                     return true;

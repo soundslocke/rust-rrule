@@ -87,7 +87,7 @@
 //! );
 //! ```
 //!
-//! Note: All the generated recurrence will be in the same time zone as the `dt_start` property.
+//! Note: All the generated recurrences will be in the same time zone as the `dt_start` property.
 //!
 //! # Time zones
 //! Dates are [`jiff::ZonedDateTime`] values. A local time that a zone skips (a DST gap)

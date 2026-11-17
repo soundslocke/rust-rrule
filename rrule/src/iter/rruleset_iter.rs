@@ -49,8 +49,8 @@ impl RRuleSetIter {
                 loop_counter += 1;
                 if loop_counter >= step_limit {
                     warn!(
-                        "Reached max loop counter (`{}`). \
-                See 'validator limits' in docs for more info.",
+                        "Reached the iteration limit (`{}`). \
+                Raise it with `RRuleSet::iteration_limit`.",
                         step_limit
                     );
                     return (None, true);
@@ -79,8 +79,8 @@ impl RRuleSetIter {
                 loop_counter += 1;
                 if loop_counter >= step_limit {
                     warn!(
-                        "Reached max loop counter (`{}`). \
-                    See 'validator limits' in docs for more info.",
+                        "Reached the iteration limit (`{}`). \
+                    Raise it with `RRuleSet::iteration_limit`.",
                         step_limit
                     );
                     return (None, true);

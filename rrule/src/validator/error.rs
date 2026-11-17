@@ -11,7 +11,7 @@ pub enum ValidationError {
     #[error("BYSETPOS should only be used in conjunction with another BYxxx rule part.")]
     BySetPosWithoutByRule,
     /// A rule part holds a value it may never take, such as `0` in `BYMONTHDAY`.
-    #[error("`{field}` can't be `{value}`, must be larger or smaller then `{value}`.")]
+    #[error("`{field}` can't be `{value}`.")]
     InvalidFieldValue {
         /// The rule part, such as `BYMONTHDAY`.
         field: String,
