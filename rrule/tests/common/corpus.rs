@@ -203,10 +203,10 @@ fn check(c: &Case) -> (Outcome, bool) {
             Err(e) => return (Outcome::Error(format!("SAME-AS rule: {e}")), limited),
         }
     }
-    if let Some(exp) = &c.instances {
-        if *exp != got {
-            problems.push(first_diff(exp, &got));
-        }
+    if let Some(exp) = &c.instances
+        && *exp != got
+    {
+        problems.push(first_diff(exp, &got));
     }
     match c.more.as_deref() {
         Some("yes") if !more => {
@@ -217,15 +217,15 @@ fn check(c: &Case) -> (Outcome, bool) {
         }
         _ => {}
     }
-    if let Some(n) = c.count {
-        if got.len() != n {
-            problems.push(format!("expected COUNT {n}, got {}", got.len()));
-        }
+    if let Some(n) = c.count
+        && got.len() != n
+    {
+        problems.push(format!("expected COUNT {n}, got {}", got.len()));
     }
-    if let Some((i, v)) = &c.nth {
-        if got.get(*i) != Some(v) {
-            problems.push(format!("expected [{i}] = {v}, got {:?}", got.get(*i)));
-        }
+    if let Some((i, v)) = &c.nth
+        && got.get(*i) != Some(v)
+    {
+        problems.push(format!("expected [{i}] = {v}, got {:?}", got.get(*i)));
     }
     let outcome = if problems.is_empty() {
         Outcome::Pass

@@ -112,10 +112,10 @@ pub fn expand(q: &Query) -> Result<Expansion, String> {
     }
     if q.dtstart_always {
         // The injected RDATE must not duplicate a DTSTART the rules generate too.
-        if let Some(i) = dates.iter().position(|d| *d == dtstart) {
-            if dates[i + 1..].contains(&dtstart) {
-                dates.remove(i);
-            }
+        if let Some(i) = dates.iter().position(|d| *d == dtstart)
+            && dates[i + 1..].contains(&dtstart)
+        {
+            dates.remove(i);
         }
     }
     dates.truncate(q.max);
